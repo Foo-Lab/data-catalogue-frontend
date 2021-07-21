@@ -1,0 +1,42 @@
+.app {
+    text-align: center;
+    height: 100vh;
+
+    .app-main {
+        height: 100vh;
+
+        .app-sider {
+            background: #f0f2f5;
+
+            .app-logo {
+                padding: 20px;
+            }
+        }
+
+        .app-body {
+            background: #ffffff;
+
+            .app-header {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-transform: uppercase;
+                background: #eb3117;
+
+                .app-sider-trigger {
+                    position: absolute;
+                    left: 25px;
+                }
+
+                .ant-typography {
+                    margin: 0;
+                }
+            }
+
+            .app-content {
+                padding: 30px;
+            }
+        }
+    }
+}
