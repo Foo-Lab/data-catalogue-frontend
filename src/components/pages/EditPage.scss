@@ -1,0 +1,21 @@
+.edit-page {
+    .page-content {
+        padding: 24px;
+
+        .ant-form-item-control-input-content {
+            display: flex;
+        }
+
+        .ant-form-item-explain {
+            display: flex;
+        }
+
+        .form-control-buttons {
+            margin-top: 50px;
+
+            .ant-form-item-control-input-content {
+                justify-content:  space-between;
+            }
+        }
+    }
+}

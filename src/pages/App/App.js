@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Layout, Image, Typography } from 'antd';
+import { Layout, Image, Typography, Button } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 
 import AppMenu from './AppMenu';
@@ -41,12 +41,13 @@ const App = () => {
 
                     <Layout className='app-body'>
                         <Header className='app-header'>
-                            <div
+                            <Button
                                 className='app-sider-trigger'
+                                type='text'
                                 onClick={() => toggleSiderCollapse(isCollapsed => !isCollapsed)}
                             >
                                 <MenuOutlined  />
-                            </div>
+                            </Button>
                             <Title level={3}>Foo Lab Data Catalogue</Title>
                         </Header>
                         <Content className='app-content'>

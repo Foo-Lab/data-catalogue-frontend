@@ -1,0 +1,20 @@
+.list-page {
+    .page-content {
+        padding: 24px;
+
+        .ant-table-row {
+            cursor: pointer;
+
+            .list-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                button {
+                    padding: 0;
+                    border: 0
+                }
+            }
+        }
+    }
+}
