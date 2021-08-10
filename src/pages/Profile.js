@@ -7,8 +7,8 @@ import {
 import { Input } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import ViewPage from '../../components/pages/ViewPage';
-import EditPage from '../../components/pages/EditPage';
+import ViewPage from '../components/pages/ViewPage';
+import EditPage from '../components/pages/EditPage';
 
 const Experiments = () => {
     const { url, path } = useRouteMatch();

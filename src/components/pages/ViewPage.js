@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { string, element, func, bool } from 'prop-types';
-import { Link, useParams } from 'react-router-dom';
+import { string, element, instanceOf, func, bool } from 'prop-types';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Descriptions, Tooltip, Button } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import PageHeader from '../PageHeader';
 import DeleteModal from '../DeleteModal';
+
+import {
+    checkIsDate,
+    checkIsDateTime,
+    formatDate,
+    formatDateTime,
+    getNestedObject,
+} from '../../utilities';
 
 import './ViewPage.scss';
 
@@ -15,19 +23,40 @@ const ViewPage = ({
     name,
     icon,
     baseUrl,
+    rows,
     getData,
     onDelete,
     showEditButton,
     showDeleteButton,
     showBackButton,
 }) => {
+    const history = useHistory();
     const { id } = useParams();
     const [data, setData] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
-        setData(getData());
-    }, []);
+        const fetchData = async () => {
+            const result = await getData(id);
+
+            Object.keys(result).forEach(key => {
+                const field = result[key];
+                if (checkIsDate(field)) {
+                    result[key] = formatDate(field);
+                } else if (checkIsDateTime(field)) {
+                    result[key] = formatDateTime(field);
+                }
+            });
+            setData(result);
+        }
+
+        fetchData();
+    }, [id]);
+
+    const onDeleteItem = async (item) => {
+        await onDelete(item.id);
+        history.push(baseUrl);
+    }
 
     return (
         <div className='view-page'>
@@ -66,28 +95,36 @@ const ViewPage = ({
             <div className='page-content'>
                 <Descriptions
                     column={1}
+                    labelStyle={{ width: '20%' }}
                     bordered
                 >
-                    {data && Object.keys(data).map(key => {
-                        const label = key.replace('_', ' ')
-                        return (
-                            <Item
-                                key={label}
-                                className='view-item'
-                                label={label}
-                                labelStyle={{ textTransform: 'capitalize' }}
-                            >
-                                {data[key]}
-                            </Item>
-                        );
-                    })}
+                    {data && rows.map(row => (
+                        <Item
+                            key={
+                                Array.isArray(row.key)
+                                    ? row.key.join('.')
+                                    : row.key
+                            }
+                            className='view-item'
+                            label={row.title}
+                            labelStyle={{ textTransform: 'capitalize' }}
+                        >
+                            {
+                                Array.isArray(row.key)
+                                    ? getNestedObject(data, row.key)
+                                    : data[row.key]
+                            }
+                        </Item>
+                    ))}
                 </Descriptions>
-                <DeleteModal
-                    data={data}
-                    isOpen={isModalOpen}
-                    toggleOpen={setModalOpen}
-                    onDelete={() => onDelete(data)}
-                />
+                {data?.name &&
+                    <DeleteModal
+                        name={data.name}
+                        isOpen={isModalOpen}
+                        toggleOpen={setModalOpen}
+                        onDelete={() => onDeleteItem(data)}
+                    />
+                }
             </div>
         </div>
     );
@@ -97,6 +134,7 @@ ViewPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
+    rows: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
     showEditButton: bool,

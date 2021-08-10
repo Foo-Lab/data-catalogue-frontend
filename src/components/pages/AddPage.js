@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, element, shape, func, bool } from 'prop-types';
+import { string, element, instanceOf, func, bool } from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
@@ -17,17 +17,16 @@ const AddPage = ({
 }) => {
     const history = useHistory();
 
-    const onFinish = values => {
-        onAdd(values);
-    };
-
-    const onCancel = () => {
+    const onFinish = async (values) => {
+        await onAdd(values);
         history.push(baseUrl);
     }
 
+    const onCancel = () => history.push(baseUrl);
+
     const renderForm = () => (
         <Form
-            name={`add-${name.toLowerCase()}`}
+            name={name}
             labelAlign='left'
             labelCol={{ span: 3, offset: 1 }}
             wrapperCol={{ span: 19 }}
@@ -81,7 +80,7 @@ AddPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
-    fields: shape([]).isRequired,
+    fields: instanceOf(Array).isRequired,
     onAdd: func.isRequired,
     showBackButton: bool,
 };

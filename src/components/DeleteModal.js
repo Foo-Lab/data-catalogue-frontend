@@ -1,16 +1,21 @@
 import React from 'react';
-import { shape, func, bool } from 'prop-types';
+import { string, func, bool } from 'prop-types';
 import { Modal } from 'antd';
 import { WarningTwoTone } from '@ant-design/icons';
 
 import './DeleteModal.scss';
 
 const DeleteModal = ({
-    data,
+    name,
     isOpen,
     toggleOpen,
     onDelete
 }) => {
+    const onOk = async () => {
+        await onDelete();
+        toggleOpen(false);
+    }
+
     const onCancel = () => toggleOpen(false);
 
     const renderModalTitle = () => (
@@ -20,7 +25,7 @@ const DeleteModal = ({
         </>
     )
 
-    if (!data) {
+    if (!name) {
         return null;
     }
 
@@ -30,16 +35,16 @@ const DeleteModal = ({
             title={renderModalTitle()}
             visible={isOpen}
             okText='Confirm'
-            onOk={onDelete}
+            onOk={onOk}
             onCancel={onCancel}
         >
-            <p>{`Are you sure you want to delete "${data.name}"?`}</p>
+            <p>{`Are you sure you want to delete '${name}'?`}</p>
         </Modal>
     );
 };
 
 DeleteModal.propTypes = {
-    data: shape({}).isRequired,
+    name: string.isRequired,
     isOpen: bool.isRequired,
     toggleOpen: func.isRequired,
     onDelete: func.isRequired,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect }from 'react';
-import { string, element, shape, bool, func } from 'prop-types';
+import { string, element, instanceOf, bool, func } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Table, Tooltip, Button } from 'antd';
 import {
@@ -32,7 +32,12 @@ const ListPage = ({
     const [itemToDelete, setItemToDelete] = useState(null);
 
     useEffect(() => {
-        setData(getData());
+        const fetchData = async () => {
+            const result = await getData();
+            setData(result);
+        }
+
+        fetchData();
     }, []);
 
     const onChange = (pagination, filters, sorter, extra) => {
@@ -42,6 +47,11 @@ const ListPage = ({
     const onShowSizeChange = (current, pageSize) => {
         console.log(current, pageSize);
     };
+
+    const onDeleteItem = async (item) => {
+        await onDelete(item.id);
+        setData(d => d.filter(e => e.id !== item.id));
+    }
 
     const renderListActions = (id, record) => (
         <div className='list-actions'>
@@ -111,6 +121,7 @@ const ListPage = ({
                             : columns
                     }
                     dataSource={data}
+                    rowKey='id'
                     pagination={{
                         showSizeChanger: true,
                         onShowSizeChange,
@@ -118,12 +129,14 @@ const ListPage = ({
                     }}
                     onChange={onChange}
                 />
-                <DeleteModal
-                    data={itemToDelete}
-                    isOpen={isModalOpen}
-                    toggleOpen={setModalOpen}
-                    onDelete={() => onDelete(itemToDelete)}
-                />
+                {itemToDelete?.name &&
+                    <DeleteModal
+                        name={itemToDelete.name}
+                        isOpen={isModalOpen}
+                        toggleOpen={setModalOpen}
+                        onDelete={() => onDeleteItem(itemToDelete)}
+                    />
+                }
             </div>
         </div>
     );
@@ -133,7 +146,7 @@ ListPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
-    columns: shape([]).isRequired,
+    columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
     showAddButton: bool,

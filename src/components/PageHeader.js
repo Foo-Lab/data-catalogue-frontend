@@ -3,6 +3,8 @@ import { string, element } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
 import { PageHeader as AntdPageHeader } from 'antd';
 
+import { splitCamelCase } from '../utilities';
+
 import './PageHeader.scss';
 
 const PageHeader = ({
@@ -18,10 +20,10 @@ const PageHeader = ({
     useEffect(() => {
         const paths = (history.location.pathname)
             .split('/')
-            .filter((p) => Number.isNaN(p))
+            .filter((p) => p && !Number(p))
             .map((p) => ({
                 path: `/${p}`,
-                breadcrumbName: p,
+                breadcrumbName: splitCamelCase(p),
             }));
 
         setBreadcrumbs([

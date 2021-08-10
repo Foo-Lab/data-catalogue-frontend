@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { string, element, shape, func, bool } from 'prop-types';
-import { useHistory } from 'react-router-dom';
-import moment from 'moment';
+import { string, element, instanceOf, func, bool } from 'prop-types';
+import { useHistory, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
+
+import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
 
@@ -18,29 +19,35 @@ const EditPage = ({
     showBackButton,
 }) => {
     const history = useHistory();
+    const { id } = useParams();
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        const initialData = getData();
-        Object.keys(initialData).forEach(key => {
-            if (moment(initialData[key], 'DD-MM-YYYY', true).isValid()) {
-                initialData[key] = moment(initialData[key], 'DD-MM-YYYY');
-            }
-        });
-        setData(initialData);
-    }, []);
+        const fetchData = async () => {
+            const result = await getData(id);
 
-    const onFinish = values => {
-        onEdit(values);
-    };
+            Object.keys(result).forEach(key => {
+                const field = result[key];
+                if (checkIsDate(field)) {
+                    result[key] = formatDate(field, false);
+                }
+            });
+            setData(result);
+        }
 
-    const onCancel = () => {
+        fetchData();
+    }, [id]);
+
+    const onFinish = async (values) => {
+        await onEdit(id, values);
         history.push(baseUrl);
     }
 
+    const onCancel = () => history.push(baseUrl);
+
     const renderForm = () => (
         <Form
-            name='basic'
+            name={name}
             labelAlign='left'
             labelCol={{ span: 3, offset: 1 }}
             wrapperCol={{ span: 19 }}
@@ -53,10 +60,7 @@ const EditPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    rules={[{
-                        required: f.required,
-                        message: `Please input your ${f.label}!`
-                    }]}
+                    required={f.required}
                 >
                     {f.input}
                 </Form.Item>
@@ -98,7 +102,7 @@ EditPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
-    fields: shape([]).isRequired,
+    fields: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onEdit: func.isRequired,
     showBackButton: bool,
