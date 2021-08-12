@@ -48,7 +48,7 @@ const Configs = ({ name }) => {
     const deleteItem = (id) => apiService.remove(name, id)
 
     return (
-        <div className='experiments-page'>
+        <div className='configs-page'>
             <Switch>
                 <Route exact path={path}>
                     <ListPage

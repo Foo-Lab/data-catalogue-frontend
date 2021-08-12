@@ -1,22 +1,43 @@
 import React, { useRef } from 'react';
-import {
-    Switch,
-    Route,
-    useRouteMatch,
-} from 'react-router-dom';
+import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import { Input } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
 
-const Experiments = () => {
+import apiService from '../services/apiService';
+
+const Profile = () => {
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: 'Profile',
         icon: <UserOutlined />,
         baseUrl: url,
     });
+
+    const listRows = [
+        {
+            title: 'Name',
+            key: 'name',
+        },
+        {
+            title: 'Username',
+            key: 'username',
+        },
+        {
+            title: 'Email',
+            key: 'email',
+        },
+        {
+            title: 'Created At',
+            key: 'createdAt',
+        },
+        {
+            title: 'Updated At',
+            key: 'updatedAt',
+        },
+    ];
 
     const formFields = [
         {
@@ -37,25 +58,27 @@ const Experiments = () => {
             required: true,
             input: <Input />,
         },
+        {
+            label: 'Password',
+            name: 'password',
+            required: true,
+            input: <Input.Password
+                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+            />,
+        },
     ];
 
-    const getItem = () => ({
-        id: 1,
-        name: 'Livvi Sim',
-        username: 'livvis',
-        email: 'livvisim@gmail.com'
-    });
+    const getItem = (id) => apiService.getById('user', id);
 
-    const updateItem = (record) => {
-        console.log('updateItem', record);
-    }
+    const updateItem =  (id, record) => apiService.update('user', id, record);
 
     return (
-        <div className='experiments-page'>
+        <div className='profile-page'>
             <Switch>
-                <Route exact path={path}>
+                <Route path={`${path}/view/:id`}>
                     <ViewPage
                         {...pageProps.current}
+                        rows={listRows}
                         getData={getItem}
                         showDeleteButton={false}
                         showBackButton={false}
@@ -74,4 +97,4 @@ const Experiments = () => {
     );
 };
 
-export default Experiments;
+export default Profile;

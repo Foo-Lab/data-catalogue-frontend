@@ -1,24 +1,26 @@
 import axios from 'axios';
 
-export default async (url, options) => {
-    try {
-        const res = await axios({
-            baseURL: process.env.REACT_APP_BACKEND_URL,
-            url,
-            ...options,
-        });
-        return res.data;
-    } catch (err) {
-        if (err.response) {
-            console.error(err.response.data);
-            console.error(err.response.status);
-            console.error(err.response.headers);
-        } else if (err.request) {
-            console.error(err.request);
-        } else {
-            console.error(err.message);
-        }
-        console.error(err.config);
-        return null;
-    }
-};
+export default async (url, options) => (
+    axios({
+        baseURL: process.env.REACT_APP_BACKEND_URL,
+        url,
+        ...options,
+    })
+        .then((response) => {
+            console.log(response);
+            return response;
+        })
+        .catch((error) => {
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log('Error', error.message);
+            }
+            console.log(error.config);
+            return error.response;
+        })
+);

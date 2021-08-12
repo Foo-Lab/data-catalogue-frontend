@@ -22,7 +22,8 @@ const AppContent = () => (
         <Route path='/statuses' key='statuses' render={() => <Config name={constants.CONFIG_STATUS} />} />
 
         <Route path='/profile' component={Profile} />
-        <Route exact path='/' component={Login} />
+        <Route exact path='/login' component={Login} />
+        <Route exact path='/' component={Experiments} />
     </Switch>
 );
 

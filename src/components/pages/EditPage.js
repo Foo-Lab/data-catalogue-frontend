@@ -60,7 +60,10 @@ const EditPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    required={f.required}
+                    rules={[{
+                        required: f.required,
+                        message: `Please input your ${f.label}!`
+                    }]}
                 >
                     {f.input}
                 </Form.Item>
