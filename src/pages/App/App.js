@@ -50,7 +50,7 @@ const App = () => {
                             </Button>
                             <Title level={3}>Foo Lab Data Catalogue</Title>
                         </Header>
-                        <Content className='app-content'>
+                        <Content className={`app-content ${siderCollapsed ? '' : 'app-content-sider-opened' }`}>
                             <AppContent />
                         </Content>
                     </Layout>

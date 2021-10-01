@@ -1,6 +1,7 @@
 .app {
     text-align: center;
     height: 100vh;
+    overflow: hidden;
 
     .app-main {
         height: 100vh;
@@ -31,6 +32,25 @@
 
                 .ant-typography {
                     margin: 0;
+                }
+            }
+
+            .app-content {
+                .page-content {
+                    position: absolute;
+                    top: 168px;
+                    bottom: 0;
+                    left: 80px;
+                    right: 0;
+                    overflow-y: auto;
+                    margin-top: 24px;
+                    padding: 0 24px 24px 24px;
+                }
+
+                &.app-content-sider-opened {
+                    .page-content {
+                        left: 200px;
+                    }
                 }
             }
         }

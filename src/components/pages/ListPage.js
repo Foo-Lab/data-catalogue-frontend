@@ -156,6 +156,7 @@ const ListPage = ({
                     onRow={(record) => ({
                         onClick: () => onClickRow(record),
                     })}
+                    sticky
                     pagination={{
                         current: pageNum,
                         pageSize,
