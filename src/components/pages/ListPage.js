@@ -1,6 +1,6 @@
 import React, { useState, useEffect }from 'react';
 import { string, element, instanceOf, bool, func } from 'prop-types';
-import { Link } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { Table, Tooltip, Button } from 'antd';
 import {
     PlusOutlined,
@@ -11,8 +11,11 @@ import {
 
 import PageHeader from '../PageHeader';
 import DeleteModal from '../DeleteModal';
+import { useQueryParams } from '../../hooks';
 
 import './ListPage.scss';
+
+const DEFAULT_PAGE_SIZE = 10;
 
 const ListPage = ({
     name,
@@ -27,26 +30,52 @@ const ListPage = ({
     showDeleteButton,
     showBackButton,
 }) => {
+    const history = useHistory();
+    const query = useQueryParams();
+
     const [data, setData] = useState(null);
+    const [totalRecords, setTotalRecords] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
+    const [pageNum, setPageNum] = useState(1);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+
+    useEffect(() => {
+        const queryPage = query.get('page');
+        const querySize = query.get('size');
+
+        if (queryPage) {
+            setPageNum(queryPage);
+        }
+        if (querySize) {
+            setPageSize(querySize);
+        }
+    }, [])
+
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getData();
+            const { count, result } = await getData(pageNum, pageSize);
+            setTotalRecords(count);
             setData(result);
         }
 
+        const params = new URLSearchParams({
+            page: pageNum,
+            size: pageSize
+        });
+        history.push({ search: params.toString() });
+
         fetchData();
-    }, []);
+    }, [pageNum, pageSize]);
 
-    const onChange = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
+    const onChange = (pagination) => {
+        const { current, pageSize: size } = pagination;
+        setPageNum(current);
+        setPageSize(size);
     };
 
-    const onShowSizeChange = (current, pageSize) => {
-        console.log(current, pageSize);
-    };
+    const onClickRow = (record) => history.push(`${baseUrl}/view/${record.id}`)
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
@@ -85,6 +114,7 @@ const ListPage = ({
         </div>
     );
 
+    // TODO when setting a page in the middle of range, too many pagination buttons show
     return (
         <div className='list-page'>
             <PageHeader
@@ -122,12 +152,17 @@ const ListPage = ({
                     }
                     dataSource={data}
                     rowKey='id'
+                    onChange={onChange}
+                    onRow={(record) => ({
+                        onClick: () => onClickRow(record),
+                    })}
                     pagination={{
+                        current: pageNum,
+                        pageSize,
                         showSizeChanger: true,
-                        onShowSizeChange,
+                        total: totalRecords,
                         showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
                     }}
-                    onChange={onChange}
                 />
                 {itemToDelete?.name &&
                     <DeleteModal

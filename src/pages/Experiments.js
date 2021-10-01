@@ -13,7 +13,7 @@ import AddEditSelect from '../components/AddEditSelect';
 
 import apiService from '../services/apiService';
 
-const name = 'experiment'
+const name = 'experiment';
 
 const Experiments = () => {
     const { url, path } = useRouteMatch();
@@ -27,7 +27,8 @@ const Experiments = () => {
 
     useEffect(() => {
         const getOptions = async () => {
-            setUsers(await apiService.getAll('user'));
+            const { result } = await apiService.getAll('user');
+            setUsers(result);
         };
 
         getOptions();
@@ -127,7 +128,7 @@ const Experiments = () => {
         },
     ];
 
-    const getAllItems = () => apiService.getAll(name);
+    const getAllItems = (page, size) => apiService.getAll(name, page, size);
 
     const getItem = (id) => apiService.getById(name, id);
 

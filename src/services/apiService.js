@@ -12,7 +12,18 @@ const handleResponse = (response) => {
         return Promise.reject(error);
     }
 
-    return response.data;
+    let res = {
+        result: response.data,
+    };
+
+    if (response.headers['x-total-count']) {
+        res =  {
+            ...res,
+            count: response.headers['x-total-count'],
+        };
+    }
+
+    return res;
 };
 
 const create = (name, data) => {
@@ -24,9 +35,18 @@ const create = (name, data) => {
     return axios(`/${name}`, requestOptions).then(handleResponse);
 };
 
-const getAll = (name) => {
+const getAll = (name, page, size) => {
+    let params = {};
+    if (page && size) {
+        params = {
+            page,
+            size,
+        };
+    }
+
     const requestOptions = {
         method: 'GET',
+        params
     };
     return axios(`/${name}`, requestOptions).then(handleResponse);
 };

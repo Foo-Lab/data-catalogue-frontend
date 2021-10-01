@@ -13,7 +13,7 @@ import AddEditSelect from '../components/AddEditSelect';
 
 import apiService from '../services/apiService';
 
-const name = 'sample'
+const name = 'sample';
 
 const Samples = () => {
     const { url, path } = useRouteMatch();
@@ -31,15 +31,20 @@ const Samples = () => {
     const [ sequencers, setSeqeuncers ] = useState([]);
     const [ sequencingProviders, setSequencingProviders ] = useState([]);
 
+    const getOption = async (option) => {
+        const { result } = await apiService.getAll(option);
+        return result;
+    }
+
     useEffect(() => {
         const getOptions = async () => {
-            setExperiments(await apiService.getAll('experiment'));
-            setUsers(await apiService.getAll('user'));
-            setStatuses(await apiService.getAll('status'));
-            setOrganisms(await apiService.getAll('organism'));
-            setSequencingTypes(await apiService.getAll('sequencingType'));
-            setSeqeuncers(await apiService.getAll('sequencer'));
-            setSequencingProviders(await apiService.getAll('sequencingProvider'));
+            setExperiments(await getOption('experiment'));
+            setUsers(await getOption('user'));
+            setStatuses(await getOption('status'));
+            setOrganisms(await getOption('organism'));
+            setSequencingTypes(await getOption('sequencingType'));
+            setSeqeuncers(await getOption('sequencer'));
+            setSequencingProviders(await getOption('sequencingProvider'));
         };
 
         getOptions();
@@ -248,7 +253,7 @@ const Samples = () => {
         },
     ];
 
-    const getAllItems = () => apiService.getAll(name);
+    const getAllItems = (page, size) => apiService.getAll(name, page, size);
 
     const getItem = (id) => apiService.getById(name, id);
 

@@ -37,7 +37,7 @@ const Configs = ({ name }) => {
         },
     ];
 
-    const getAllItems = () => apiService.getAll(name);
+    const getAllItems = (page, size) => apiService.getAll(name, page, size);
 
     const getItem = (id) => apiService.getById(name, id);
 

@@ -37,7 +37,7 @@ const ViewPage = ({
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getData(id);
+            const { result } = await getData(id);
 
             Object.keys(result).forEach(key => {
                 const field = result[key];
