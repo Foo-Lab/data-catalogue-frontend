@@ -35,12 +35,14 @@ const create = (name, data) => {
     return axios(`/${name}`, requestOptions).then(handleResponse);
 };
 
-const getAll = (name, page, size) => {
+const getAll = (name, page, size, sort, dir) => {
     let params = {};
     if (page && size) {
         params = {
             page,
             size,
+            sort,
+            dir,
         };
     }
 

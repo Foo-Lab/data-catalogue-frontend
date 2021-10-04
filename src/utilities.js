@@ -23,3 +23,5 @@ export const getNestedObject = (obj, paths) => {
     });
     return tmp;
 };
+
+export const compareStrings = (a, b) => a.localeCompare(b)

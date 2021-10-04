@@ -10,7 +10,7 @@ import AddPage from '../components/pages/AddPage';
 import EditPage from '../components/pages/EditPage';
 
 import apiService from '../services/apiService';
-import { splitCamelCase } from '../utilities';
+import { splitCamelCase, compareStrings } from '../utilities';
 
 const Configs = ({ name }) => {
     const { url, path } = useRouteMatch();
@@ -20,14 +20,16 @@ const Configs = ({ name }) => {
         baseUrl: url,
     });
 
+    // list
     const tableColumns = [
         {
             title: 'Name',
             dataIndex: 'name',
-            sorter: (a, b) => a.name > b.name,
+            sorter: (a, b) => compareStrings(a.name, b.name),
         },
     ];
 
+    // add edit
     const formFields = [
         {
             label: 'Name',
@@ -37,7 +39,8 @@ const Configs = ({ name }) => {
         },
     ];
 
-    const getAllItems = (page, size) => apiService.getAll(name, page, size);
+    // api calls
+    const getAllItems = (page, size, sort, dir) => apiService.getAll(name, page, size, sort, dir);
 
     const getItem = (id) => apiService.getById(name, id);
 

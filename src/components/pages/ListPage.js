@@ -1,4 +1,4 @@
-import React, { useState, useEffect }from 'react';
+import React, { useState, useEffect, useRef }from 'react';
 import { string, element, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
 import { Table, Tooltip, Button } from 'antd';
@@ -15,7 +15,9 @@ import { useQueryParams } from '../../hooks';
 
 import './ListPage.scss';
 
+const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_SORT_DIR = 'asc';
 
 const ListPage = ({
     name,
@@ -32,18 +34,24 @@ const ListPage = ({
 }) => {
     const history = useHistory();
     const query = useQueryParams();
+    const pageContent = useRef();
 
     const [data, setData] = useState(null);
+    const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    const [pageNum, setPageNum] = useState(1);
+    const [pageNum, setPageNum] = useState(DEFAULT_PAGE);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [sortCol, setSortCol] = useState(null);
+    const [sortDir, setSortDir] = useState(DEFAULT_SORT_DIR);
 
     useEffect(() => {
         const queryPage = query.get('page');
         const querySize = query.get('size');
+        const querySort = query.get('sort');
+        const queryDir = query.get('dir')
 
         if (queryPage) {
             setPageNum(queryPage);
@@ -51,28 +59,68 @@ const ListPage = ({
         if (querySize) {
             setPageSize(querySize);
         }
+        if (querySort) {
+            setSortCol(querySort);
+        }
+        if (queryDir) {
+            setSortDir(queryDir);
+        }
     }, []);
 
     useEffect(() => {
+        setLoading(true);
+
         const fetchData = async () => {
-            const { count, result } = await getData(pageNum, pageSize);
+            const { count, result } = await getData(
+                pageNum,
+                pageSize,
+                sortCol,
+                sortDir,
+            );
             setTotalRecords(count);
             setData(result);
+            setLoading(false);
+            pageContent.current.scrollTo({top: 0, behavior: 'instant'});
         }
 
         const params = new URLSearchParams({
             page: pageNum,
-            size: pageSize
+            size: pageSize,
+            ...sortCol && {
+                sort: sortCol,
+                dir: sortDir,
+            }
         });
         history.push({ search: params.toString() });
 
         fetchData();
-    }, [pageNum, pageSize]);
+    }, [pageNum, pageSize, sortCol, sortDir]);
 
-    const onChange = (pagination) => {
-        const { current, pageSize: size } = pagination;
-        setPageNum(current);
-        setPageSize(size);
+    const onChange = (pagination, filters, sorter, extra) => {
+        const { action } = extra;
+        switch(action) {
+            case 'paginate': {
+                const { current, pageSize: size } = pagination;
+                setPageNum(current);
+                setPageSize(size);
+                break;
+            }
+            case 'sort': {
+                const { field, order } = sorter;
+                setPageNum(DEFAULT_PAGE);
+                setSortCol(
+                    Array.isArray(field)
+                        ? field.join('.')
+                        : field
+                );
+                setSortDir(order === 'ascend' ? 'asc' : 'desc');
+                break;
+            }
+            case 'filter': {
+                break;
+            }
+            default:
+        }
     };
 
     const onClickRow = (record) => history.push(`${baseUrl}/view/${record.id}`)
@@ -126,6 +174,7 @@ const ListPage = ({
     );
 
     // TODO when setting a page in the middle of range, too many pagination buttons show
+    // TODO when scrolling, can see row behind sticky header
     return (
         <div className='list-page'>
             <PageHeader
@@ -146,7 +195,7 @@ const ListPage = ({
                 }
             </PageHeader>
 
-            <div className='page-content'>
+            <div className='page-content' ref={pageContent}>
                 <Table
                     columns={
                         (showViewButton || showEditButton || showDeleteButton)
@@ -168,6 +217,7 @@ const ListPage = ({
                         onClick: () => onClickRow(record),
                     })}
                     sticky
+                    loading={isLoading}
                     pagination={{
                         current: pageNum,
                         pageSize,

@@ -12,13 +12,14 @@ import EditPage from '../components/pages/EditPage';
 import AddEditSelect from '../components/AddEditSelect';
 
 import apiService from '../services/apiService';
+import { compareStrings } from '../utilities';
 
-const name = 'sample';
+const PAGE_NAME = 'sample';
 
 const Samples = () => {
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
-        name: plural(name),
+        name: plural(PAGE_NAME),
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });
@@ -31,12 +32,11 @@ const Samples = () => {
     const [ sequencers, setSeqeuncers ] = useState([]);
     const [ sequencingProviders, setSequencingProviders ] = useState([]);
 
-    const getOption = async (option) => {
-        const { result } = await apiService.getAll(option);
-        return result;
-    }
-
     useEffect(() => {
+        const getOption = async (option) => {
+            const { result } = await apiService.getAll(option);
+            return result;
+        }
         const getOptions = async () => {
             setExperiments(await getOption('experiment'));
             setUsers(await getOption('user'));
@@ -50,7 +50,7 @@ const Samples = () => {
         getOptions();
     }, []);
 
-    // TODO nested sorting not working
+    // list
     const tableColumns = [
         {
             title: 'Date',
@@ -61,30 +61,31 @@ const Samples = () => {
         {
             title: 'Status',
             dataIndex: ['Status', 'name'],
-            sorter: (a, b) => a.Status.name > b.Status.name,
+            sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
         },
         {
             title: 'Code',
             dataIndex: 'code',
-            sorter: (a, b) => a.code > b.code,
+            sorter: (a, b) => compareStrings(a.code, b.code),
         },
         {
             title: 'Name',
             dataIndex: 'name',
-            sorter: (a, b) => a.name > b.name,
+            sorter: (a, b) => compareStrings(a.name, b.name),
         },
         {
             title: 'Experiment',
             dataIndex: ['Experiment', 'name'],
-            sorter: (a, b) => a.Experiment.name > b.Experiment.name,
+            sorter: (a, b) => compareStrings(a.Experiment.name, b.Experiment.name),
         },
         {
             title: 'User',
             dataIndex: ['User', 'name'],
-            sorter: (a, b) => a.User.name > b.User.name,
+            sorter: (a, b) => compareStrings(a.User.name, b.User.name),
         },
     ];
 
+    // view
     const listRows = [
         {
             title: 'Date',
@@ -160,6 +161,7 @@ const Samples = () => {
         },
     ];
 
+    // add edit
     const formFields = [
         {
             label: 'Date',
@@ -253,15 +255,16 @@ const Samples = () => {
         },
     ];
 
-    const getAllItems = (page, size) => apiService.getAll(name, page, size);
+    // api calls
+    const getAllItems = (page, size, sort, dir) => apiService.getAll(PAGE_NAME, page, size, sort, dir);
 
-    const getItem = (id) => apiService.getById(name, id);
+    const getItem = (id) => apiService.getById(PAGE_NAME, id);
 
-    const addItem = (record) => apiService.create(name, record);
+    const addItem = (record) => apiService.create(PAGE_NAME, record);
 
-    const updateItem =  (id, record) => apiService.update(name, id, record);
+    const updateItem =  (id, record) => apiService.update(PAGE_NAME, id, record);
 
-    const deleteItem = (id) => apiService.remove(name, id)
+    const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 
     return (
         <div className='samples-page'>
