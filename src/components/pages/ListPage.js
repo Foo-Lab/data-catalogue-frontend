@@ -77,6 +77,10 @@ const ListPage = ({
 
     const onClickRow = (record) => history.push(`${baseUrl}/view/${record.id}`)
 
+    const onClickAction = (event) => {
+        event.stopPropagation();
+    }
+
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
         setData(d => d.filter(e => e.id !== item.id));
@@ -85,14 +89,20 @@ const ListPage = ({
     const renderListActions = (id, record) => (
         <div className='list-actions'>
             {showViewButton &&
-                <Link to={`${baseUrl}/view/${id}`}>
+                <Link
+                    to={`${baseUrl}/view/${id}`}
+                    onClick={onClickAction}
+                >
                     <Tooltip title='View'>
                         <EyeOutlined />
                     </Tooltip>
                 </Link>
             }
             {showEditButton &&
-                <Link to={`${baseUrl}/edit/${id}`}>
+                <Link
+                    to={`${baseUrl}/edit/${id}`}
+                    onClick={onClickAction}
+                >
                     <Tooltip title='Edit'>
                         <EditOutlined />
                     </Tooltip>
@@ -101,7 +111,8 @@ const ListPage = ({
             {showDeleteButton &&
                 <Button
                     type='link'
-                    onClick={() => {
+                    onClick={(event) => {
+                        event.stopPropagation();
                         setItemToDelete(record);
                         setModalOpen(true);
                     }}
