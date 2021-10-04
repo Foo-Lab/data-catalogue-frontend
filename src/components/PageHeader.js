@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { string, element } from 'prop-types';
+import { string, element, bool } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
 import { PageHeader as AntdPageHeader } from 'antd';
 
@@ -11,7 +11,7 @@ const PageHeader = ({
     name,
     action,
     icon,
-    backUrl,
+    showBackButton,
     children,
 }) => {
     const history = useHistory();
@@ -62,8 +62,8 @@ const PageHeader = ({
                     : null
             }
             onBack={
-                backUrl
-                    ? () => history.push(backUrl)
+                showBackButton
+                    ? () => history.goBack()
                     : null
             }
             breadcrumb={{
@@ -79,14 +79,14 @@ PageHeader.propTypes = {
     name: string.isRequired,
     action: string,
     icon: element,
-    backUrl: string,
+    showBackButton: bool,
     children: element,
 };
 
 PageHeader.defaultProps = {
     action: null,
     icon: null,
-    backUrl: null,
+    showBackButton: true,
     children: null,
 };
 

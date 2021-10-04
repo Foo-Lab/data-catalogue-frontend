@@ -51,7 +51,7 @@ const ListPage = ({
         if (querySize) {
             setPageSize(querySize);
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -120,7 +120,7 @@ const ListPage = ({
             <PageHeader
                 name={name}
                 icon={icon}
-                backUrl={showBackButton ? baseUrl : null}
+                showBackButton={showBackButton}
             >
                 {showAddButton &&
                     <Link to={`${baseUrl}/add`}>

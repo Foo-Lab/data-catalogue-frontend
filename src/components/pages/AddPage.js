@@ -22,7 +22,7 @@ const AddPage = ({
         history.push(baseUrl);
     }
 
-    const onCancel = () => history.push(baseUrl);
+    const onCancel = () => history.goBack();
 
     const renderForm = () => (
         <Form
@@ -67,7 +67,7 @@ const AddPage = ({
                 name={name}
                 action='add'
                 icon={icon}
-                backUrl={showBackButton ? baseUrl : null}
+                showBackButton={showBackButton}
             />
             <div className='page-content'>
                 {renderForm()}

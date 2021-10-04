@@ -55,7 +55,7 @@ const ViewPage = ({
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
-        history.push(baseUrl);
+        history.goBack();
     }
 
     return (
@@ -64,7 +64,7 @@ const ViewPage = ({
                 name={name}
                 action='view'
                 icon={icon}
-                backUrl={showBackButton ? baseUrl : null}
+                showBackButton={showBackButton}
             >
                 <>
                     {showEditButton &&

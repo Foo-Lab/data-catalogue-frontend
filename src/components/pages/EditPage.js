@@ -12,7 +12,6 @@ import './EditPage.scss';
 const EditPage = ({
     name,
     icon,
-    baseUrl,
     fields,
     getData,
     onEdit,
@@ -40,10 +39,10 @@ const EditPage = ({
 
     const onFinish = async (values) => {
         await onEdit(id, values);
-        history.push(baseUrl);
+        history.goBack();
     }
 
-    const onCancel = () => history.push(baseUrl);
+    const onCancel = () => history.goBack();
 
     const renderForm = () => (
         <Form
@@ -89,7 +88,7 @@ const EditPage = ({
                 name={name}
                 action='edit'
                 icon={icon}
-                backUrl={showBackButton ? baseUrl : null}
+                showBackButton={showBackButton}
             />
             <div className='page-content'>
                 {data
@@ -104,7 +103,6 @@ const EditPage = ({
 EditPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
     fields: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onEdit: func.isRequired,
