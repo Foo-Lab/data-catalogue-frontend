@@ -58,8 +58,6 @@ export const userSlice = createSlice({
     },
 });
 
-export const { clearState } = userSlice.actions;
-
 export const selectUserStatus = (state) => ({
     isFetching: state.user.isFetching,
     isSuccess: state.user.isSuccess,
@@ -67,4 +65,6 @@ export const selectUserStatus = (state) => ({
     errorMessage: state.user.errorMessage,
 });
 
+
+export const { clearState } = userSlice.actions;
 export default userSlice.reducer;

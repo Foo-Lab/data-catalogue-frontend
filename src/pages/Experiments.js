@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect} from 'react';
+import { useDispatch } from 'react-redux';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
 import { ExperimentOutlined } from '@ant-design/icons';
@@ -11,12 +12,14 @@ import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
 import AddEditSelect from '../components/AddEditSelect';
 
+import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { compareStrings } from '../utilities';
 
 const PAGE_NAME = 'experiment';
 
 const Experiments = () => {
+    const dispatch = useDispatch();
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
@@ -31,8 +34,11 @@ const Experiments = () => {
             const { result } = await apiService.getAll('user');
             setUsers(result);
         };
-
         getOptions();
+
+        return () => {
+            dispatch(clearPageState());
+        };
     }, []);
 
     // list

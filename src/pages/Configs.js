@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import { string } from 'prop-types';
 import { Input } from 'antd';
@@ -9,16 +10,22 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import EditPage from '../components/pages/EditPage';
 
+import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { splitCamelCase, compareStrings } from '../utilities';
 
 const Configs = ({ name }) => {
+    const dispatch = useDispatch();
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: splitCamelCase(plural(name)),
         icon: <SettingOutlined />,
         baseUrl: url,
     });
+
+    useEffect(() => () => {
+        dispatch(clearPageState());
+    }, []);
 
     // list
     const tableColumns = [

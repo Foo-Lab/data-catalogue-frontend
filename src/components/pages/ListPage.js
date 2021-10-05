@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef }from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { string, element, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
 import { Table, Tooltip, Button } from 'antd';
@@ -11,13 +12,10 @@ import {
 
 import PageHeader from '../PageHeader';
 import DeleteModal from '../DeleteModal';
-import { useQueryParams } from '../../hooks';
+
+import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListPage.scss';
-
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 10;
-const DEFAULT_SORT_DIR = 'asc';
 
 const ListPage = ({
     name,
@@ -32,8 +30,8 @@ const ListPage = ({
     showDeleteButton,
     showBackButton,
 }) => {
+    const dispatch = useDispatch();
     const history = useHistory();
-    const query = useQueryParams();
     const pageContent = useRef();
 
     const [data, setData] = useState(null);
@@ -42,30 +40,10 @@ const ListPage = ({
     const [isModalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    const [pageNum, setPageNum] = useState(DEFAULT_PAGE);
-    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-    const [sortCol, setSortCol] = useState(null);
-    const [sortDir, setSortDir] = useState(DEFAULT_SORT_DIR);
-
-    useEffect(() => {
-        const queryPage = query.get('page');
-        const querySize = query.get('size');
-        const querySort = query.get('sort');
-        const queryDir = query.get('dir')
-
-        if (queryPage) {
-            setPageNum(queryPage);
-        }
-        if (querySize) {
-            setPageSize(querySize);
-        }
-        if (querySort) {
-            setSortCol(querySort);
-        }
-        if (queryDir) {
-            setSortDir(queryDir);
-        }
-    }, []);
+    const pageNum = useSelector(state => state.listPage.pageNum);
+    const pageSize = useSelector(state => state.listPage.pageSize);
+    const sortBy = useSelector(state => state.listPage.sortBy);
+    const sortDir = useSelector(state => state.listPage.sortDir);
 
     useEffect(() => {
         setLoading(true);
@@ -74,46 +52,37 @@ const ListPage = ({
             const { count, result } = await getData(
                 pageNum,
                 pageSize,
-                sortCol,
+                sortBy,
                 sortDir,
             );
             setTotalRecords(count);
             setData(result);
-            setLoading(false);
+
             pageContent.current.scrollTo({top: 0, behavior: 'instant'});
+            setLoading(false);
         }
-
-        const params = new URLSearchParams({
-            page: pageNum,
-            size: pageSize,
-            ...sortCol && {
-                sort: sortCol,
-                dir: sortDir,
-            }
-        });
-        history.push({ search: params.toString() });
-
         fetchData();
-    }, [pageNum, pageSize, sortCol, sortDir]);
+    }, [pageNum, pageSize, sortBy, sortDir]);
 
     const onChange = (pagination, filters, sorter, extra) => {
         const { action } = extra;
         switch(action) {
             case 'paginate': {
                 const { current, pageSize: size } = pagination;
-                setPageNum(current);
-                setPageSize(size);
+                dispatch(changePage({
+                    pageNum: current,
+                    pageSize: size,
+                }));
                 break;
             }
             case 'sort': {
                 const { field, order } = sorter;
-                setPageNum(DEFAULT_PAGE);
-                setSortCol(
-                    Array.isArray(field)
+                dispatch(sortPage({
+                    sortBy: Array.isArray(field)
                         ? field.join('.')
-                        : field
-                );
-                setSortDir(order === 'ascend' ? 'asc' : 'desc');
+                        : field,
+                    sortDir: order === 'ascend' ? 'asc' : 'desc',
+                }));
                 break;
             }
             case 'filter': {
