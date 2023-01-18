@@ -70,7 +70,7 @@ const Samples = () => {
             sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
         },
         {
-            title: 'Code',
+            title: 'Sample ID',
             dataIndex: 'code',
             sorter: (a, b) => compareStrings(a.code, b.code),
         },
@@ -110,7 +110,7 @@ const Samples = () => {
             key: ['Experiment', 'name'],
         },
         {
-            title: 'Code',
+            title: 'Sample ID',
             key: 'code',
         },
         {
@@ -194,7 +194,7 @@ const Samples = () => {
             input: AddEditSelect({ options: experiments }),
         },
         {
-            label: 'Code',
+            label: 'Sample ID',
             name: 'code',
             required: true,
             input: <Input />,

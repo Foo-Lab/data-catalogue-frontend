@@ -55,7 +55,7 @@ const Experiments = () => {
             sorter: (a, b) => new Date(b.date) - new Date(a.date),
         },
         {
-            title: 'Code',
+            title: 'Seq ID',
             dataIndex: 'code',
             sorter: (a, b) => compareStrings(a.code, b.code),
         },
@@ -83,7 +83,7 @@ const Experiments = () => {
             key: 'date',
         },
         {
-            title: 'Code',
+            title: 'Seq ID',
             key: 'code',
         },
         {
@@ -119,7 +119,7 @@ const Experiments = () => {
             input: <DatePicker showToday format='DD/MM/YYYY' />,
         },
         {
-            label: 'Code',
+            label: 'Seq ID',
             name: 'code',
             required: true,
             input: <Input />,
