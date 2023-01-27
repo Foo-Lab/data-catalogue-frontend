@@ -4,7 +4,7 @@ import { Input } from 'antd';
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
-import EditPage from '../components/pages/EditPage';
+import EditProfilePage from '../components/pages/EditProfilePage';
 
 import apiService from '../services/apiService';
 
@@ -75,6 +75,11 @@ const Profile = () => {
     return (
         <div className='profile-page'>
             <Switch>
+                <Route exact path="/profile">
+                    <p>
+                        Own profile should be displayed here
+                    </p>
+                </Route>
                 <Route path={`${path}/view/:id`}>
                     <ViewPage
                         {...pageProps.current}
@@ -85,7 +90,7 @@ const Profile = () => {
                     />
                 </Route>
                 <Route path={`${path}/edit/:id`}>
-                    <EditPage
+                    <EditProfilePage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
