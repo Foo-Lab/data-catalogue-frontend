@@ -69,7 +69,7 @@ const ViewPage = ({
                 <>
                     {showEditButton &&
                         <Link to={`${baseUrl}/edit/${id}`}>
-                            <Tooltip title='Edit'>
+                            <Tooltip title={`Edit ${name}`}>
                                 <Button
                                     type='primary'
                                     shape='circle'
@@ -78,6 +78,9 @@ const ViewPage = ({
                             </Tooltip>
                         </Link>
                     }
+                    {/* {name === "Profile" && 
+                        <p>HELLO WORLDDLDLDLDLDLD</p>
+                    } */}
                     {showDeleteButton &&
                         <Button
                             type='primary'
