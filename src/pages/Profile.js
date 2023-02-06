@@ -15,6 +15,7 @@ const Profile = () => {
         icon: <UserOutlined />,
         baseUrl: url,
     });
+    const newPasswordRef = useRef();
 
     const listRows = [
         {
@@ -59,12 +60,36 @@ const Profile = () => {
             input: <Input />,
         },
         {
-            label: 'Password',
-            name: 'password',
+            label: 'Current Password',
+            name: 'currentPassword',
             required: true,
             input: <Input.Password
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
             />,
+        },
+        {
+            label: 'New Password',
+            name: 'newPassword',
+            required: true,
+            input: <Input.Password
+                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                ref={newPasswordRef}
+            />,
+        },
+        {
+            label: 'Confirm New Password',
+            name: 'confirmPassword',
+            required: true,
+            input: <Input.Password
+                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                newpassref={newPasswordRef}
+            />,
+        },
+        {
+            label: 'Admin',
+            name: 'isAdmin',
+            required: false,
+            adminOnly: true,
         },
     ];
 
