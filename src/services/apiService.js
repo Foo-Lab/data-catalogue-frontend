@@ -5,8 +5,8 @@ const handleResponse = (response) => {
         if (response.status === 401) {
             // logout();
             // location.reload(true);
-            console.warning('401 not authorized')
-        }
+            console.warn('401 not authorized');
+        };
 
         const error = (response.data && response.data.message) || response.statusText;
         return Promise.reject(error);
