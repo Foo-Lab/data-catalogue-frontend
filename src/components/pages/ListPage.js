@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef }from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, element, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
@@ -17,6 +17,21 @@ import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListPage.scss';
 
+// const dataReducer = (state, action) => {
+//     if (action.type === "SET_DATA") {
+//         return { ok: true, value: action.value }
+//     }
+//     if (action.type === "DELETE_RECORD") {
+//         console.log(`state: ${state}`);
+//         console.log(`action: ${action}`);
+//         return { ok: null, errorMessage: action.value }
+//     }
+//     if (action.type === "ERROR") {
+//         return { ok: false, errorMessage: action.value }
+//     }
+//     return { ok: null, value: null }
+// };
+
 const ListPage = ({
     name,
     icon,
@@ -34,6 +49,7 @@ const ListPage = ({
     const history = useHistory();
     const pageContent = useRef();
 
+    // const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
     const [data, setData] = useState(null);
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
@@ -49,24 +65,30 @@ const ListPage = ({
         setLoading(true);
 
         const fetchData = async () => {
-            const { count, result } = await getData(
-                pageNum,
-                pageSize,
-                sortBy,
-                sortDir,
-            );
-            setTotalRecords(count);
-            setData(result);
+            try {
+                const { count, result } = await getData(
+                    pageNum,
+                    pageSize,
+                    sortBy,
+                    sortDir,
+                );
+                setTotalRecords(count);
+                setData(result);
 
-            pageContent.current.scrollTo({top: 0, behavior: 'instant'});
-            setLoading(false);
+                pageContent.current.scrollTo({ top: 0, behavior: 'instant' });
+                setLoading(false);
+                // dataDispatch({ type: "SET_DATA", value: result });
+            } catch (error) {
+                console.error(error);
+                // dataDispatch({ type: "ERROR", value: error });
+            }
         }
         fetchData();
     }, [pageNum, pageSize, sortBy, sortDir]);
 
     const onChange = (pagination, filters, sorter, extra) => {
         const { action } = extra;
-        switch(action) {
+        switch (action) {
             case 'paginate': {
                 const { current, pageSize: size } = pagination;
                 dispatch(changePage({
@@ -179,7 +201,7 @@ const ListPage = ({
                             ]
                             : columns
                     }
-                    dataSource={data}
+                    dataSource={data.value}
                     rowKey='id'
                     onChange={onChange}
                     onRow={(record) => ({
