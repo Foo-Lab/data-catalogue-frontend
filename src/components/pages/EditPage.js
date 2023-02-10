@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
@@ -8,6 +8,16 @@ import PageHeader from '../PageHeader';
 import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
+
+const dataReducer = (state, action) => {
+    if (action.type === "SET_DATA") {
+        return { ok: true, value: action.value }
+    }
+    if (action.type === "ERROR") {
+        return { ok: false, errorMessage: action.value }
+    }
+    return { ok: null, value: null }
+};
 
 const EditPage = ({
     name,
@@ -19,19 +29,23 @@ const EditPage = ({
 }) => {
     const history = useHistory();
     const { id } = useParams();
-    const [data, setData] = useState(null);
+    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
 
     useEffect(() => {
         const fetchData = async () => {
-            const { result } = await getData(id);
-
-            Object.keys(result).forEach(key => {
-                const field = result[key];
-                if (checkIsDate(field)) {
-                    result[key] = formatDate(field, false);
-                }
-            });
-            setData(result);
+            try {
+                const { result } = await getData(id);
+                Object.keys(result).forEach(key => {
+                    const field = result[key];
+                    if (checkIsDate(field)) {
+                        result[key] = formatDate(field, false);
+                    }
+                });
+                dataDispatch({ type: "SET_DATA", value: result });
+            } catch (error) {
+                console.error(error);
+                dataDispatch({ type: "ERROR", value: error });
+            }
         }
 
         fetchData();
@@ -50,7 +64,7 @@ const EditPage = ({
             labelAlign='left'
             labelCol={{ span: 3, offset: 1 }}
             wrapperCol={{ span: 19 }}
-            initialValues={data}
+            initialValues={data.value}
             onFinish={onFinish}
             scrollToFirstError
         >
@@ -70,7 +84,7 @@ const EditPage = ({
 
             <Form.Item
                 className='form-control-buttons'
-                wrapperCol={{span: 4, offset: 10}}
+                wrapperCol={{ span: 4, offset: 10 }}
             >
                 <Button type='primary' htmlType='submit'>
                     Submit
@@ -91,9 +105,9 @@ const EditPage = ({
                 showBackButton={showBackButton}
             />
             <div className='page-content'>
-                {data
+                {data.ok
                     ? renderForm()
-                    : null
+                    : <p>{`${data.errorMessage}`}</p>
                 }
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Descriptions, Tooltip, Button } from 'antd';
@@ -19,6 +19,16 @@ import './ViewPage.scss';
 
 const { Item } = Descriptions;
 
+const dataReducer = (state, action) => {
+    if (action.type === "SET_DATA") {
+        return { ok: true, value: action.value }
+    }
+    if (action.type === "ERROR") {
+        return { ok: false, errorMessage: action.value }
+    }
+    return { ok: null, value: null }
+};
+
 const ViewPage = ({
     name,
     icon,
@@ -32,22 +42,26 @@ const ViewPage = ({
 }) => {
     const history = useHistory();
     const { id } = useParams();
-    const [data, setData] = useState(null);
+    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
     const [isModalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            const { result } = await getData(id);
-
-            Object.keys(result).forEach(key => {
-                const field = result[key];
-                if (checkIsDate(field)) {
-                    result[key] = formatDate(field);
-                } else if (checkIsDateTime(field)) {
-                    result[key] = formatDateTime(field);
-                }
-            });
-            setData(result);
+            try {
+                const { result } = await getData(id);
+                Object.keys(result).forEach(key => {
+                    const field = result[key];
+                    if (checkIsDate(field)) {
+                        result[key] = formatDate(field);
+                    } else if (checkIsDateTime(field)) {
+                        result[key] = formatDateTime(field);
+                    }
+                });
+                dataDispatch({ type: "SET_DATA", value: result });
+            } catch (error) {
+                console.error(error);
+                dataDispatch({ type: "ERROR", value: error });
+            }
         }
 
         fetchData();
@@ -101,7 +115,7 @@ const ViewPage = ({
                     labelStyle={{ width: '20%' }}
                     bordered
                 >
-                    {data && rows.map(row => (
+                    {data.ok ? rows.map(row => (
                         <Item
                             key={
                                 Array.isArray(row.key)
@@ -114,15 +128,15 @@ const ViewPage = ({
                         >
                             {
                                 Array.isArray(row.key)
-                                    ? getNestedObject(data, row.key)
-                                    : data[row.key]
+                                    ? getNestedObject(data.value, row.key)
+                                    : data.value[row.key]
                             }
                         </Item>
-                    ))}
+                    )) : <p>{`${data.errorMessage}`}</p>}
                 </Descriptions>
-                {data?.name &&
+                {data.value?.name &&
                     <DeleteModal
-                        name={data.name}
+                        name={data.value.name}
                         isOpen={isModalOpen}
                         toggleOpen={setModalOpen}
                         onDelete={() => onDeleteItem(data)}

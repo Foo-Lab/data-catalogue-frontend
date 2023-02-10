@@ -10,13 +10,13 @@ import { checkIsDate, formatDate } from '../../utilities';
 import './EditPage.scss'; // uses same scss as EditPage.js
 
 const dataReducer = (state, action) => {
-    if (action.type === "USER_DATA") {
-        return {ok: true, value: action.value}
+    if (action.type === "SET_DATA") {
+        return { ok: true, value: action.value }
     }
     if (action.type === "ERROR") {
-        return {ok: false, value: action.value}
+        return { ok: false, errorMessage: action.value }
     }
-    return {ok: null, value: null}
+    return { ok: null, value: null }
 };
 
 const EditProfilePage = ({
@@ -31,23 +31,22 @@ const EditProfilePage = ({
     const history = useHistory();
     const { id } = useParams();
     const [errorState, setErrorState] = useState(null);
-    const [data, dataDispatch] = useReducer(dataReducer, {ok: null, value: 'Loading...'});
+    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const { result } = await getData(id);
-                console.log(result);
                 Object.keys(result).forEach(key => {
                     const field = result[key];
                     if (checkIsDate(field)) {
                         result[key] = formatDate(field, false);
                     }
                 });
-                dataDispatch({ type: "USER_DATA", value: result});
+                dataDispatch({ type: "SET_DATA", value: result });
             } catch (error) {
                 console.error(error);
-                dataDispatch({ type: "ERROR", value: error});
+                dataDispatch({ type: "ERROR", value: error });
             }
         }
 
@@ -60,7 +59,7 @@ const EditProfilePage = ({
             history.goBack();
         } catch (error) {
             console.error(error);
-            setErrorState(error)
+            setErrorState(error);
         }
     }
 
@@ -108,6 +107,8 @@ const EditProfilePage = ({
                         },
                     },
                     ]}
+                    // validateStatus={f.name === 'currentPassword' && errorState ? 'error' : null}
+                    help={f.name === 'currentPassword' && errorState ? errorState : null}
                 >
                     {f.name === 'isAdmin' ? <Checkbox defaultChecked={data.isAdmin} /> : f.input}
                 </Form.Item>
@@ -138,7 +139,7 @@ const EditProfilePage = ({
             <div className='page-content'>
                 {data.ok
                     ? renderForm()
-                    : <p>{`${data.value}`}</p>
+                    : <p>{`${data.errorMessage}`}</p>
                 }
             </div>
         </div>
