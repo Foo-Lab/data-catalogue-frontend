@@ -219,16 +219,19 @@ const Samples = () => {
         {
             label: 'Tissue',
             name: 'tissue',
+            required: true,
             input: <Input.TextArea rows={2}/>,
         },
         {
             label: 'Condition',
             name: 'condition',
+            required: true,
             input: <Input.TextArea rows={2}/>,
         },
         {
             label: 'Treatment',
             name: 'treatment',
+            required: true,
             input: <Input.TextArea rows={2}/>,
         },
         {
@@ -252,6 +255,7 @@ const Samples = () => {
         {
             label: 'SRA',
             name: 'sra',
+            required: true,
             input: <Input />,
         },
         {
