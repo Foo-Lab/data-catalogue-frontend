@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Descriptions, Tooltip, Button } from 'antd';
@@ -16,18 +16,9 @@ import {
 } from '../../utilities';
 
 import './ViewPage.scss';
+import { useDataReducer } from '../../hooks';
 
 const { Item } = Descriptions;
-
-const dataReducer = (state, action) => {
-    if (action.type === "SET_DATA") {
-        return { ok: true, value: action.value }
-    }
-    if (action.type === "ERROR") {
-        return { ok: false, errorMessage: action.value }
-    }
-    return { ok: null, value: null }
-};
 
 const ViewPage = ({
     name,
@@ -42,7 +33,7 @@ const ViewPage = ({
 }) => {
     const history = useHistory();
     const { id } = useParams();
-    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
+    const [data, dataDispatch] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {

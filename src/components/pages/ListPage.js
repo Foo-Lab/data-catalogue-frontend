@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, element, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
@@ -16,19 +16,7 @@ import DeleteModal from '../DeleteModal';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListPage.scss';
-
-const dataReducer = (state, action) => {
-    if (action.type === "SET_DATA") {
-        return { ok: true, value: action.value }
-    }
-    if (action.type === "DELETE_RECORD") {
-        return { ok: true, value: state.value.filter(item => item.id !== action.value) }
-    }
-    if (action.type === "ERROR") {
-        return { ok: false, errorMessage: action.value }
-    }
-    return { ok: null, value: null }
-};
+import { useDataReducer } from '../../hooks';
 
 const ListPage = ({
     name,
@@ -47,8 +35,7 @@ const ListPage = ({
     const history = useHistory();
     const pageContent = useRef();
 
-    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
-    // const [data, setData] = useState(null);
+    const [data, dataDispatch] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);

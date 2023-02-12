@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
@@ -8,16 +8,7 @@ import PageHeader from '../PageHeader';
 import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
-
-const dataReducer = (state, action) => {
-    if (action.type === "SET_DATA") {
-        return { ok: true, value: action.value }
-    }
-    if (action.type === "ERROR") {
-        return { ok: false, errorMessage: action.value }
-    }
-    return { ok: null, value: null }
-};
+import { useDataReducer } from '../../hooks';
 
 const EditPage = ({
     name,
@@ -29,7 +20,7 @@ const EditPage = ({
 }) => {
     const history = useHistory();
     const { id } = useParams();
-    const [data, dataDispatch] = useReducer(dataReducer, { ok: null, value: 'Loading...' });
+    const [data, dataDispatch] = useDataReducer();
 
     useEffect(() => {
         const fetchData = async () => {
