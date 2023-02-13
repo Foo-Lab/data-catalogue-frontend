@@ -16,6 +16,7 @@ import {
 } from '../../utilities';
 
 import './ViewPage.scss';
+import { useDataReducer } from '../../hooks';
 
 const { Item } = Descriptions;
 
@@ -32,22 +33,26 @@ const ViewPage = ({
 }) => {
     const history = useHistory();
     const { id } = useParams();
-    const [data, setData] = useState(null);
+    const [data, dataDispatch] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            const { result } = await getData(id);
-
-            Object.keys(result).forEach(key => {
-                const field = result[key];
-                if (checkIsDate(field)) {
-                    result[key] = formatDate(field);
-                } else if (checkIsDateTime(field)) {
-                    result[key] = formatDateTime(field);
-                }
-            });
-            setData(result);
+            try {
+                const { result } = await getData(id);
+                Object.keys(result).forEach(key => {
+                    const field = result[key];
+                    if (checkIsDate(field)) {
+                        result[key] = formatDate(field);
+                    } else if (checkIsDateTime(field)) {
+                        result[key] = formatDateTime(field);
+                    }
+                });
+                dataDispatch({ type: "SET_DATA", value: result });
+            } catch (error) {
+                console.error(error);
+                dataDispatch({ type: "ERROR", value: error });
+            }
         }
 
         fetchData();
@@ -101,7 +106,7 @@ const ViewPage = ({
                     labelStyle={{ width: '20%' }}
                     bordered
                 >
-                    {data && rows.map(row => (
+                    {data.ok ? rows.map(row => (
                         <Item
                             key={
                                 Array.isArray(row.key)
@@ -114,15 +119,15 @@ const ViewPage = ({
                         >
                             {
                                 Array.isArray(row.key)
-                                    ? getNestedObject(data, row.key)
-                                    : data[row.key]
+                                    ? getNestedObject(data.value, row.key)
+                                    : data.value[row.key]
                             }
                         </Item>
-                    ))}
+                    )) : <p>{`${data.errorMessage}`}</p>}
                 </Descriptions>
-                {data?.name &&
+                {data.value?.name &&
                     <DeleteModal
-                        name={data.name}
+                        name={data.value.name}
                         isOpen={isModalOpen}
                         toggleOpen={setModalOpen}
                         onDelete={() => onDeleteItem(data)}

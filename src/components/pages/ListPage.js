@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef }from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, element, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
@@ -16,6 +16,7 @@ import DeleteModal from '../DeleteModal';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListPage.scss';
+import { useDataReducer } from '../../hooks';
 
 const ListPage = ({
     name,
@@ -34,7 +35,7 @@ const ListPage = ({
     const history = useHistory();
     const pageContent = useRef();
 
-    const [data, setData] = useState(null);
+    const [data, dataDispatch] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -49,24 +50,30 @@ const ListPage = ({
         setLoading(true);
 
         const fetchData = async () => {
-            const { count, result } = await getData(
-                pageNum,
-                pageSize,
-                sortBy,
-                sortDir,
-            );
-            setTotalRecords(count);
-            setData(result);
+            try {
+                const { count, result } = await getData(
+                    pageNum,
+                    pageSize,
+                    sortBy,
+                    sortDir,
+                );
+                setTotalRecords(count);
+                // setData(result);
 
-            pageContent.current.scrollTo({top: 0, behavior: 'instant'});
-            setLoading(false);
+                pageContent.current.scrollTo({ top: 0, behavior: 'instant' });
+                setLoading(false);
+                dataDispatch({ type: "SET_DATA", value: result });
+            } catch (error) {
+                console.error(error);
+                dataDispatch({ type: "ERROR", value: error });
+            }
         }
         fetchData();
     }, [pageNum, pageSize, sortBy, sortDir]);
 
     const onChange = (pagination, filters, sorter, extra) => {
         const { action } = extra;
-        switch(action) {
+        switch (action) {
             case 'paginate': {
                 const { current, pageSize: size } = pagination;
                 dispatch(changePage({
@@ -100,7 +107,8 @@ const ListPage = ({
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
-        setData(d => d.filter(e => e.id !== item.id));
+        // setData(d => d.filter(e => e.id !== item.id));
+        dataDispatch({ type: "DELETE_RECORD", value: item.id });
     }
 
     const renderListActions = (id, record) => (
@@ -165,36 +173,39 @@ const ListPage = ({
             </PageHeader>
 
             <div className='page-content' ref={pageContent}>
-                <Table
-                    columns={
-                        (showViewButton || showEditButton || showDeleteButton)
-                            ? [
-                                ...columns,
-                                {
-                                    title: 'Actions',
-                                    dataIndex: 'id',
-                                    width: 100,
-                                    render: (id, record) => renderListActions(id, record),
-                                }
-                            ]
-                            : columns
-                    }
-                    dataSource={data}
-                    rowKey='id'
-                    onChange={onChange}
-                    onRow={(record) => ({
-                        onClick: () => onClickRow(record),
-                    })}
-                    sticky
-                    loading={isLoading}
-                    pagination={{
-                        current: pageNum,
-                        pageSize,
-                        showSizeChanger: true,
-                        total: totalRecords,
-                        showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
-                    }}
-                />
+                {data.ok ?
+                    <Table
+                        columns={
+                            (showViewButton || showEditButton || showDeleteButton)
+                                ? [
+                                    ...columns,
+                                    {
+                                        title: 'Actions',
+                                        dataIndex: 'id',
+                                        width: 100,
+                                        render: (id, record) => renderListActions(id, record),
+                                    }
+                                ]
+                                : columns
+                        }
+                        dataSource={data.value}
+                        rowKey='id'
+                        onChange={onChange}
+                        onRow={(record) => ({
+                            onClick: () => onClickRow(record),
+                        })}
+                        sticky
+                        loading={isLoading}
+                        pagination={{
+                            current: pageNum,
+                            pageSize,
+                            showSizeChanger: true,
+                            total: totalRecords,
+                            showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
+                        }}
+                    /> :
+                    <p>{`${data.errorMessage}`}</p>
+                }
                 {itemToDelete?.name &&
                     <DeleteModal
                         name={itemToDelete.name}
