@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
@@ -21,21 +21,25 @@ const PAGE_NAME = 'experiment';
 const Experiments = () => {
     const dispatch = useDispatch();
     const { url, path } = useRouteMatch();
+    console.log(`url ${url}\npath ${path}`);
     const pageProps = useRef({
         name: plural(PAGE_NAME),
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });
 
-    const [ users, setUsers ] = useState([]);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const getOptions = async () => {
             const { result } = await apiService.getAll('user');
             setUsers(result);
         };
-        getOptions();
-
+        try {
+            getOptions();
+        } catch (error) { 
+            console.log(error) 
+        }
         return () => {
             dispatch(clearPageState());
         };
@@ -60,7 +64,7 @@ const Experiments = () => {
             sorter: (a, b) => compareStrings(a.code, b.code),
         },
         {
-            title: 'Name',
+            title: 'Experiment Name',
             dataIndex: 'name',
             sorter: (a, b) => compareStrings(a.name, b.name),
         },
@@ -87,7 +91,7 @@ const Experiments = () => {
             key: 'code',
         },
         {
-            title: 'Name',
+            title: 'Experiment Name',
             key: 'name',
         },
         {
@@ -125,7 +129,7 @@ const Experiments = () => {
             input: <Input />,
         },
         {
-            label: 'Name',
+            label: 'Experiment Name',
             name: 'name',
             required: true,
             input: <Input />,
@@ -133,7 +137,7 @@ const Experiments = () => {
         {
             label: 'Description',
             name: 'description',
-            input: <Input.TextArea rows={8}/>,
+            input: <Input.TextArea rows={8} />,
         },
     ];
 
@@ -144,7 +148,7 @@ const Experiments = () => {
 
     const addItem = (record) => apiService.create(PAGE_NAME, record);
 
-    const updateItem =  (id, record) => apiService.update(PAGE_NAME, id, record);
+    const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 

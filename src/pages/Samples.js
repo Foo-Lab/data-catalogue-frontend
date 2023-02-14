@@ -75,7 +75,7 @@ const Samples = () => {
             sorter: (a, b) => compareStrings(a.code, b.code),
         },
         {
-            title: 'Name',
+            title: 'Sample Name',
             dataIndex: 'name',
             sorter: (a, b) => compareStrings(a.name, b.name),
         },
@@ -114,7 +114,7 @@ const Samples = () => {
             key: 'code',
         },
         {
-            title: 'Name',
+            title: 'Sample Name',
             key: 'name',
         },
         {
@@ -200,7 +200,7 @@ const Samples = () => {
             input: <Input />,
         },
         {
-            label: 'Name',
+            label: 'Sample Name',
             name: 'name',
             required: true,
             input: <Input />,

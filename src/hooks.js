@@ -7,6 +7,9 @@ const dataReducer = (state, action) => {
     if (action.type === "SET_DATA") {
         return { ok: true, value: action.value }
     }
+    if (action.type === "UPDATE_VALUE") {
+        return {ok: true, value: Object.assign(state.action, action.value)}
+    }
     if (action.type === "DELETE_RECORD") {
         return { ok: true, value: state.value.filter(item => item.id !== action.value) }
     }

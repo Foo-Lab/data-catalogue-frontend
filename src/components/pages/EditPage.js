@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
@@ -17,9 +17,12 @@ const EditPage = ({
     getData,
     onEdit,
     showBackButton,
+    isProfilePage
 }) => {
+    console.log(`Different edit page for profile: ${isProfilePage}`);
     const history = useHistory();
     const { id } = useParams();
+    const [submitError, setSubmitError] = useState(null);
     const [data, dataDispatch] = useDataReducer();
 
     useEffect(() => {
@@ -43,8 +46,14 @@ const EditPage = ({
     }, [id]);
 
     const onFinish = async (values) => {
-        await onEdit(id, values);
-        history.goBack();
+        try {
+            console.log(values);
+            await onEdit(id, values);
+            history.goBack();
+        } catch (error) {
+            console.error(error);
+            setSubmitError(error);
+        }
     }
 
     const onCancel = () => history.goBack();
@@ -53,7 +62,7 @@ const EditPage = ({
         <Form
             name={name}
             labelAlign='left'
-            labelCol={{ span: 3, offset: 1 }}
+            labelCol={{ span: 6, offset: 1 }}
             wrapperCol={{ span: 19 }}
             initialValues={data.value}
             onFinish={onFinish}
@@ -66,8 +75,29 @@ const EditPage = ({
                     name={f.name}
                     rules={[{
                         required: f.required,
-                        message: `Please input your ${f.label}!`
-                    }]}
+                        message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'New Password'}!`
+                    },
+                    {
+                        validator: async (rule, value) => {
+                            if (f.name === 'newPassword') {
+                                if (value.length < 8) {
+                                    return Promise.reject(new Error('Password must be at least 8 characters long.'));
+                                }
+                            }
+                            if (f.name === 'confirmPassword') {
+                                const newPassword = f.input.props.newpassref.current.props.value;
+                                if (value !== newPassword) {
+                                    console.log('value: ', value, 'newPassword: ', newPassword);
+                                    return Promise.reject(new Error('Passwords do not match.'));
+                                }
+                            }
+                            return Promise.resolve();
+                        }
+                    },
+                    ]}
+                    // validateStatus={f.name === 'currentPassword' && submitError ? 'error' : null}
+                    help={f.name === 'currentPassword' && submitError ? submitError : null}
+                    valuePropName={f.name==='isAdmin' ? "checked" : "value"}
                 >
                     {f.input}
                 </Form.Item>
@@ -112,11 +142,13 @@ EditPage.propTypes = {
     getData: func.isRequired,
     onEdit: func.isRequired,
     showBackButton: bool,
+    isProfilePage: bool,
 };
 
 EditPage.defaultProps = {
     icon: null,
     showBackButton: true,
+    isProfilePage: false,
 };
 
 export default EditPage;

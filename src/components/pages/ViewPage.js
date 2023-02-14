@@ -83,9 +83,6 @@ const ViewPage = ({
                             </Tooltip>
                         </Link>
                     }
-                    {/* {name === "Profile" && 
-                        <p>HELLO WORLDDLDLDLDLDLD</p>
-                    } */}
                     {showDeleteButton &&
                         <Button
                             type='primary'

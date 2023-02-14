@@ -1,6 +1,10 @@
 import axios from '../modules/axios';
 
 const handleResponse = (response) => {
+    if (response === undefined) {
+        const error = 'Response is undefined. Backend may be down';
+        return Promise.reject(error);
+    } 
     if (response.status !== 200) {
         if (response.status === 401) {
             // logout();
@@ -10,7 +14,7 @@ const handleResponse = (response) => {
 
         const error = (response.data && response.data.message) || response.statusText;
         return Promise.reject(error);
-    }
+    } 
 
     let res = {
         result: response.data,
