@@ -4,7 +4,7 @@ const handleResponse = (response) => {
     if (response === undefined) {
         const error = 'Response is undefined. Backend may be down';
         return Promise.reject(error);
-    } 
+    }
     if (response.status !== 200) {
         if (response.status === 401) {
             // logout();
@@ -14,14 +14,14 @@ const handleResponse = (response) => {
 
         const error = (response.data && response.data.message) || response.statusText;
         return Promise.reject(error);
-    } 
+    }
 
     let res = {
         result: response.data,
     };
 
     if (response.headers['x-total-count']) {
-        res =  {
+        res = {
             ...res,
             count: response.headers['x-total-count'],
         };
@@ -57,6 +57,13 @@ const getAll = (name, page, size, sort, dir) => {
     return axios(`/${name}`, requestOptions).then(handleResponse);
 };
 
+const getAllWhere = (name, referenceName, referenceId) => {
+    const requestOptions = {
+        method: 'GET',
+    };
+    return axios(`/${name}/${referenceName}/${referenceId}`, requestOptions).then(handleResponse);
+};
+
 const getById = (name, id) => {
     const requestOptions = {
         method: 'GET',
@@ -67,7 +74,7 @@ const getById = (name, id) => {
 const update = (name, id, data) => {
     const requestOptions = {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         data,
     };
     return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
@@ -83,6 +90,7 @@ const remove = (name, id) => {
 export default {
     create,
     getAll,
+    getAllWhere,
     getById,
     update,
     remove,
