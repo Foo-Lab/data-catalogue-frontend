@@ -61,7 +61,7 @@ const getAllWhere = (name, referenceName, referenceId) => {
     const requestOptions = {
         method: 'GET',
     };
-    return axios(`/${name}/${referenceName}/${referenceId}`, requestOptions).then(handleResponse);
+    return axios(`/${referenceName}/${name}/${referenceId}`, requestOptions).then(handleResponse);
 };
 
 const getById = (name, id) => {

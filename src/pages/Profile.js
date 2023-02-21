@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
 import { Switch, Route, useRouteMatch, Link } from 'react-router-dom';
-import { Input, Button } from 'antd';
+import { Input, Button, Checkbox } from 'antd';
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
-import EditProfilePage from '../components/pages/EditProfilePage';
+import EditPage from '../components/pages/EditPage';
 
 import apiService from '../services/apiService';
 import ListPage from '../components/pages/ListPage';
@@ -39,6 +39,10 @@ const Profile = () => {
             title: 'Username',
             dataIndex: 'username',
             sorter: (a, b) => compareStrings(a.username, b.username),
+        },
+        {
+            title: 'Admin',
+            dataIndex: 'isAdmin',
         },
         {
             title: 'Email',
@@ -143,6 +147,7 @@ const Profile = () => {
             name: 'isAdmin',
             required: false,
             adminOnly: true,
+            input: <Checkbox />
         },
     ];
 
@@ -193,11 +198,12 @@ const Profile = () => {
                     />
                 </Route>
                 <Route path={`${path}/edit/:id`}>
-                    <EditProfilePage
+                    <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
+                        isProfilePage
                     />
                 </Route>
             </Switch>
