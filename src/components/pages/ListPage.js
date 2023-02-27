@@ -39,7 +39,6 @@ const ListPage = ({
     const [data, dataDispatch] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
-    const [isModalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
     const pageNum = useSelector(state => state.listPage.pageNum);
@@ -138,7 +137,6 @@ const ListPage = ({
                     onClick={(event) => {
                         event.stopPropagation();
                         setItemToDelete(record);
-                        setModalOpen(true);
                     }}
                 >
                     <Tooltip title='Delete'>
@@ -208,8 +206,8 @@ const ListPage = ({
                 {itemToDelete?.name &&
                     <DeleteModal
                         name={itemToDelete.name}
-                        isOpen={isModalOpen}
-                        toggleOpen={setModalOpen}
+                        isOpen={itemToDelete !== null}
+                        toggleItemToDelete={setItemToDelete}
                         onDelete={() => onDeleteItem(itemToDelete)}
                     />
                 }

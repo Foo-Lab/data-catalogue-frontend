@@ -8,15 +8,15 @@ import './DeleteModal.scss';
 const DeleteModal = ({
     name,
     isOpen,
-    toggleOpen,
+    toggleItemToDelete,
     onDelete
 }) => {
     const onOk = async () => {
         await onDelete();
-        toggleOpen(false);
+        toggleItemToDelete(null);
     }
 
-    const onCancel = () => toggleOpen(false);
+    const onCancel = () => toggleItemToDelete(null);
 
     const renderModalTitle = () => (
         <>
@@ -46,7 +46,7 @@ const DeleteModal = ({
 DeleteModal.propTypes = {
     name: string.isRequired,
     isOpen: bool.isRequired,
-    toggleOpen: func.isRequired,
+    toggleItemToDelete: func.isRequired,
     onDelete: func.isRequired,
 };
 
