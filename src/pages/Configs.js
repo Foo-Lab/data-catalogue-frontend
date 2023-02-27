@@ -67,6 +67,7 @@ const Configs = ({ name }) => {
                         getData={getAllItems}
                         onDelete={deleteItem}
                         showViewButton={false}
+                        allowClickRow={false}
                     />
                 </Route>
                 <Route path={`${path}/add`}>
