@@ -27,22 +27,20 @@ const EditPage = ({
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const { result } = await getData(id);
-                Object.keys(result).forEach(key => {
-                    const field = result[key];
-                    if (checkIsDate(field)) {
-                        result[key] = formatDate(field, false);
-                    }
-                });
-                dataDispatch({ type: "SET_DATA", value: result });
-            } catch (error) {
-                console.error(error);
-                dataDispatch({ type: "ERROR", value: error });
-            }
-        }
+            const { result } = await getData(id);
+            Object.keys(result).forEach(key => {
+                const field = result[key];
+                if (checkIsDate(field)) {
+                    result[key] = formatDate(field, false);
+                }
+            });
+            dataDispatch({ type: "SET_DATA", value: result });
+        };
 
-        fetchData();
+        fetchData().catch(error => {
+            console.error(error);
+            dataDispatch({ type: "ERROR", value: error });
+        });
     }, [id]);
 
     const onFinish = async (values) => {
@@ -97,7 +95,7 @@ const EditPage = ({
                     ]}
                     // validateStatus={f.name === 'currentPassword' && submitError ? 'error' : null}
                     help={f.name === 'currentPassword' && submitError ? submitError : null}
-                    valuePropName={f.name==='isAdmin' ? "checked" : "value"}
+                    valuePropName={f.name === 'isAdmin' ? "checked" : "value"}
                 >
                     {f.input}
                 </Form.Item>

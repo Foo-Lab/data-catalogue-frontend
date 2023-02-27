@@ -30,6 +30,7 @@ const ListPage = ({
     showEditButton,
     showDeleteButton,
     showBackButton,
+    allowClickRow,
 }) => {
     const dispatch = useDispatch();
     const history = useHistory();
@@ -50,25 +51,23 @@ const ListPage = ({
         setLoading(true);
 
         const fetchData = async () => {
-            try {
-                const { count, result } = await getData(
-                    pageNum,
-                    pageSize,
-                    sortBy,
-                    sortDir,
-                );
-                setTotalRecords(count);
-                // setData(result);
+            const { count, result } = await getData(
+                pageNum,
+                pageSize,
+                sortBy,
+                sortDir,
+            );
+            setTotalRecords(count);
+            // setData(result);
 
-                pageContent.current.scrollTo({ top: 0, behavior: 'instant' });
-                setLoading(false);
-                dataDispatch({ type: "SET_DATA", value: result });
-            } catch (error) {
-                console.error(error);
-                dataDispatch({ type: "ERROR", value: error });
-            }
+            pageContent.current.scrollTo({ top: 0, behavior: 'instant' });
+            setLoading(false);
+            dataDispatch({ type: "SET_DATA", value: result });
         }
-        fetchData();
+        fetchData().catch(error => {
+            console.error(error);
+            dataDispatch({ type: "ERROR", value: error });
+        });
     }, [pageNum, pageSize, sortBy, sortDir]);
 
     const onChange = (pagination, filters, sorter, extra) => {
@@ -99,7 +98,7 @@ const ListPage = ({
         }
     };
 
-    const onClickRow = (record) => history.push(`${baseUrl}/view/${record.id}`)
+    const onClickRow = (record) => allowClickRow && history.push(`${baseUrl}/view/${record.id}`)
 
     const onClickAction = (event) => {
         event.stopPropagation();
@@ -231,6 +230,7 @@ ListPage.propTypes = {
     showEditButton: bool,
     showDeleteButton: bool,
     showBackButton: bool,
+    allowClickRow: bool,
 };
 
 ListPage.defaultProps = {
@@ -241,6 +241,7 @@ ListPage.defaultProps = {
     showEditButton: true,
     showDeleteButton: true,
     showBackButton: false,
+    allowClickRow: true,
 };
 
 export default ListPage;

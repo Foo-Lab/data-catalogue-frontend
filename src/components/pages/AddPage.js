@@ -49,7 +49,7 @@ const AddPage = ({
 
             <Form.Item
                 className='form-control-buttons'
-                wrapperCol={{span: 4, offset: 10}}
+                wrapperCol={{ span: 4, offset: 10 }}
             >
                 <Button type='primary' htmlType='submit'>
                     Submit
