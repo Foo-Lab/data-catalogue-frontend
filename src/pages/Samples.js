@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
@@ -23,17 +23,18 @@ const Samples = () => {
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
+        referencedBy: 'SampleFiles',
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });
 
-    const [ experiments, setExperiments ] = useState([]);
-    const [ users, setUsers ] = useState([]);
-    const [ statuses, setStatuses ] = useState([]);
-    const [ organisms, setOrganisms ] = useState([]);
-    const [ sequencingTypes, setSequencingTypes ] = useState([]);
-    const [ sequencers, setSeqeuncers ] = useState([]);
-    const [ sequencingProviders, setSequencingProviders ] = useState([]);
+    const [experiments, setExperiments] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [statuses, setStatuses] = useState([]);
+    const [organisms, setOrganisms] = useState([]);
+    const [sequencingTypes, setSequencingTypes] = useState([]);
+    const [sequencers, setSeqeuncers] = useState([]);
+    const [sequencingProviders, setSequencingProviders] = useState([]);
 
     useEffect(() => {
         const getOption = async (option) => {
@@ -65,8 +66,8 @@ const Samples = () => {
             sorter: (a, b) => new Date(b.date) - new Date(a.date),
         },
         {
-            title: 'Status',
-            dataIndex: ['Status', 'name'],
+            title: 'Seq Type',
+            dataIndex: ['SequencingType', 'name'],
             sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
         },
         {
@@ -106,6 +107,22 @@ const Samples = () => {
             key: ['User', 'name'],
         },
         {
+            title: 'Sequencing Type',
+            key: ['SequencingType', 'name'],
+        },
+        {
+            title: 'Sequencer',
+            key: ['Sequencer', 'name'],
+        },
+        {
+            title: 'Sequencing Provider',
+            key: ['SequencingProvider', 'name'],
+        },
+        {
+            title: 'SRA',
+            key: 'sra',
+        },
+        {
             title: 'Experiment',
             key: ['Experiment', 'name'],
         },
@@ -116,10 +133,6 @@ const Samples = () => {
         {
             title: 'Sample Name',
             key: 'name',
-        },
-        {
-            title: 'Description',
-            key: 'description',
         },
         {
             title: 'Organism',
@@ -138,33 +151,21 @@ const Samples = () => {
             key: 'treatment',
         },
         {
-            title: 'Sequencing Type',
-            key: ['SequencingType', 'name'],
-        },
-        {
-            title: 'Sequencer',
-            key: ['Sequencer', 'name'],
-        },
-        {
-            title: 'Sequencing Provider',
-            key: ['SequencingProvider', 'name'],
-        },
-        {
-            title: 'SRA',
-            key: 'sra',
+            title: 'Description',
+            key: 'description',
         },
         {
             title: 'Remarks',
             key: 'remarks',
         },
-        {
-            title: 'Created At',
-            key: 'createdAt',
-        },
-        {
-            title: 'Updated At',
-            key: 'updatedAt',
-        },
+        // {
+        //     title: 'Created At',
+        //     key: 'createdAt',
+        // },
+        // {
+        //     title: 'Updated At',
+        //     key: 'updatedAt',
+        // },
     ];
 
     // add edit
@@ -179,19 +180,19 @@ const Samples = () => {
             label: 'Status',
             name: 'statusId',
             required: true,
-            input: AddEditSelect({ options: statuses }),
+            input: AddEditSelect({ options: statuses, field: 'status' }),
         },
         {
             label: 'User',
             name: 'userId',
             required: true,
-            input: AddEditSelect({ options: users }),
+            input: AddEditSelect({ options: users, field: 'user' }),
         },
         {
             label: 'Experiment',
             name: 'experimentId',
             required: true,
-            input: AddEditSelect({ options: experiments }),
+            input: AddEditSelect({ options: experiments, field: 'experiment' }),
         },
         {
             label: 'Sample ID',
@@ -208,49 +209,49 @@ const Samples = () => {
         {
             label: 'Description',
             name: 'description',
-            input: <Input.TextArea rows={4}/>,
+            input: <Input.TextArea rows={4} />,
         },
         {
             label: 'Organism',
             name: 'organismId',
             required: true,
-            input: AddEditSelect({ options: organisms }),
+            input: AddEditSelect({ options: organisms, field: 'organism' }),
         },
         {
             label: 'Tissue',
             name: 'tissue',
             required: true,
-            input: <Input.TextArea rows={2}/>,
+            input: <Input.TextArea rows={2} />,
         },
         {
             label: 'Condition',
             name: 'condition',
             required: true,
-            input: <Input.TextArea rows={2}/>,
+            input: <Input.TextArea rows={2} />,
         },
         {
             label: 'Treatment',
             name: 'treatment',
             required: true,
-            input: <Input.TextArea rows={2}/>,
+            input: <Input.TextArea rows={2} />,
         },
         {
             label: 'Sequencing Type',
             name: 'sequencingTypeId',
             required: true,
-            input: AddEditSelect({ options: sequencingTypes }),
+            input: AddEditSelect({ options: sequencingTypes, field: 'sequencing type' }),
         },
         {
             label: 'Sequencer',
             name: 'sequencerId',
             required: true,
-            input: AddEditSelect({ options: sequencers }),
+            input: AddEditSelect({ options: sequencers, field: 'sequencer' }),
         },
         {
             label: 'Sequencing Provider',
             name: 'sequencingProviderId',
             required: true,
-            input: AddEditSelect({ options: sequencingProviders }),
+            input: AddEditSelect({ options: sequencingProviders, field: 'sequencing provider' }),
         },
         {
             label: 'SRA',
@@ -261,18 +262,36 @@ const Samples = () => {
         {
             label: 'Remarks',
             name: 'remarks',
-            input: <Input.TextArea rows={4}/>,
+            input: <Input.TextArea rows={4} />,
         },
     ];
 
-    // api calls
+    // api calls for samples
     const getAllItems = (page, size, sort, dir) => apiService.getAll(PAGE_NAME, page, size, sort, dir);
 
     const getItem = (id) => apiService.getById(PAGE_NAME, id);
 
+    const getBySample = (page, size, sort, dir, id) => apiService.getAllWhere(PAGE_NAME, page, size, sort, dir, { route: 'sampleFile', id });
+
+
+    const unpackSampleFiles = (sampleFile) => ({
+        type: sampleFile.FileType.name,
+        locUrl: sampleFile.locationUrl,
+        s3Url: sampleFile.locationS3Url,
+        remarks: sampleFile.remarks,
+        added: moment(sampleFile.createdAt).format('DD/MM/YYYY')
+    })
+
+    const sampleFileFields = {
+        title: 'type',
+        description: 'added',
+        actions: {},
+        extra: {}
+    };
+
     const addItem = (record) => apiService.create(PAGE_NAME, record);
 
-    const updateItem =  (id, record) => apiService.update(PAGE_NAME, id, record);
+    const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 
@@ -297,10 +316,15 @@ const Samples = () => {
                 <Route path={`${path}/view/:id`}>
                     <ViewPage
                         {...pageProps.current}
-                        rows={listRows}
+                        dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
+                        getByFk={getBySample}
+                        unpackReferencedFiles={unpackSampleFiles}
+                        fileInfo={sampleFileFields}
                     />
+                    {/* fileTypes.filter(r => r.id===record.fileTypeId)[0].name */}
+                    {/* {fileTypes && console.log('FILETYPES',fileTypes.filter(r => r.id===1)[0].name)} */}
                 </Route>
                 <Route path={`${path}/edit/:id`}>
                     <EditPage

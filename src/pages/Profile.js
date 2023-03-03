@@ -191,7 +191,7 @@ const Profile = () => {
                 <Route path={`${path}/view/:id`}>
                     <ViewPage
                         {...pageProps.current}
-                        rows={listRows}
+                        dataDescriptors={listRows}
                         getData={getItem}
                         showDeleteButton={false}
                         showBackButton={false}

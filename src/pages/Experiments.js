@@ -24,6 +24,7 @@ const Experiments = () => {
     console.log(`url ${url}\npath ${path}`);
     const pageProps = useRef({
         name: plural(PAGE_NAME),
+        referencedBy: 'Samples',
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });
@@ -53,10 +54,9 @@ const Experiments = () => {
             sorter: (a, b) => compareStrings(a.User.name, b.User.name),
         },
         {
-            title: 'Date',
-            dataIndex: 'date',
-            render: (date) => moment(date).format('DD/MM/YYYY'),
-            sorter: (a, b) => new Date(b.date) - new Date(a.date),
+            title: 'Experiment Name',
+            dataIndex: 'name',
+            sorter: (a, b) => compareStrings(a.name, b.name),
         },
         {
             title: 'Seq ID',
@@ -64,9 +64,10 @@ const Experiments = () => {
             sorter: (a, b) => compareStrings(a.code, b.code),
         },
         {
-            title: 'Experiment Name',
-            dataIndex: 'name',
-            sorter: (a, b) => compareStrings(a.name, b.name),
+            title: 'Date',
+            dataIndex: 'date',
+            render: (date) => moment(date).format('DD/MM/YYYY'),
+            sorter: (a, b) => new Date(b.date) - new Date(a.date),
         },
         {
             title: 'Description',
@@ -83,29 +84,29 @@ const Experiments = () => {
             key: ['User', 'name'],
         },
         {
-            title: 'Date',
-            key: 'date',
+            title: 'Experiment Name',
+            key: 'name',
         },
         {
             title: 'Seq ID',
             key: 'code',
         },
         {
-            title: 'Experiment Name',
-            key: 'name',
+            title: 'Date',
+            key: 'date',
         },
         {
             title: 'Description',
             key: 'description',
         },
-        {
-            title: 'Created At',
-            key: 'createdAt',
-        },
-        {
-            title: 'Updated At',
-            key: 'updatedAt',
-        },
+        // {
+        //     title: 'Created At',
+        //     key: 'createdAt',
+        // },
+        // {
+        //     title: 'Updated At',
+        //     key: 'updatedAt',
+        // },
     ];
 
     // add edit
@@ -114,7 +115,7 @@ const Experiments = () => {
             label: 'User',
             name: 'userId',
             required: true,
-            input: AddEditSelect({ options: users }),
+            input: AddEditSelect({ options: users, field: 'user' }),
         },
         {
             label: 'Date',
@@ -146,6 +147,8 @@ const Experiments = () => {
 
     const getItem = (id) => apiService.getById(PAGE_NAME, id);
 
+    const getByExpt = (page, size, sort, dir, id) => apiService.getAllWhere(PAGE_NAME, page, size, sort, dir, { route: 'sample', id });
+
     const addItem = (record) => apiService.create(PAGE_NAME, record);
 
     const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
@@ -173,9 +176,11 @@ const Experiments = () => {
                 <Route path={`${path}/view/:id`}>
                     <ViewPage
                         {...pageProps.current}
-                        rows={listRows}
+                        dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
+                        getByFk={getByExpt}
+                        unpackReferencedFiles={(record) => `sample-id ${record.id}`}
                     />
                 </Route>
                 <Route path={`${path}/edit/:id`}>

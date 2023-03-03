@@ -18,8 +18,9 @@ export const login = createAsyncThunk(
         userService.login(data)
             .then(
                 (response) => {
-                    console.log('response', response);
-                    // localStorage.setItem('token', data);
+                    console.log('response', response.data);
+                    localStorage.setItem('token', JSON.stringify(response.data));
+                    console.log('token',localStorage.getItem('token'));
                     return response.data;
                 },
                 (error) => thunkAPI.rejectWithValue(error.data)
@@ -43,12 +44,14 @@ export const userSlice = createSlice({
                 state.isFetching = true;
             })
             .addCase(login.fulfilled, (state, { payload }) => {
+                console.log('before', state);
                 state.name = payload.name;
                 state.username = payload.username;
                 state.email = payload.email;
                 state.isAdmin = payload.isAdmin;
                 state.isFetching = false;
                 state.isSuccess = true;
+                console.log('after', state);
             })
             .addCase(login.rejected, (state, { payload }) => {
                 state.isFetching = false;
