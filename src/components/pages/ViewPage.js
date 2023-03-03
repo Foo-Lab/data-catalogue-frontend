@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
 import { Link, useHistory, useParams } from 'react-router-dom';
-import { Descriptions, Tooltip, Button, Empty, List, Divider, Typography, Space } from 'antd';
+import { Descriptions, Tooltip, Button, Empty, Divider, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 
 import PageHeader from '../PageHeader';
 import DeleteModal from '../DeleteModal';
-// import ListTable from './ListTable';
+import ListTable from './ListTable';
 
 import {
     checkIsDate,
@@ -16,9 +16,9 @@ import {
     formatDateTime,
     getNestedObject,
 } from '../../utilities';
+import { useDataReducer } from '../../hooks';
 
 import './ViewPage.scss';
-import { useDataReducer } from '../../hooks';
 
 const { Text } = Typography;
 const { Item } = Descriptions;
@@ -30,8 +30,12 @@ const ViewPage = ({
     dataDescriptors,
     getData,
     getByFk,
+    deleteByFk,
     referencedBy,
-    unpackReferencedFiles,
+    referenceUrl,
+    allowClickRow,
+    allowView,
+    listColumns,
     onDelete,
     showEditButton,
     showDeleteButton,
@@ -42,17 +46,17 @@ const ViewPage = ({
     const [data, dataDispatch] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
-    const pageNum = useSelector(state => state.listPage.pageNum);
-    const pageSize = useSelector(state => state.listPage.pageSize);
-    const sortBy = useSelector(state => state.listPage.sortBy);
-    const sortDir = useSelector(state => state.listPage.sortDir);
+    // const pageNum = useSelector(state => state.listPage.pageNum);
+    // const pageSize = useSelector(state => state.listPage.pageSize);
+    // const sortBy = useSelector(state => state.listPage.sortBy);
+    // const sortDir = useSelector(state => state.listPage.sortDir);
 
     useEffect(() => {
         const fetchData = async () => {
             const { result } = await getData(id);
-            const matchingRecords = getByFk ? await getByFk(pageNum, pageSize, sortBy, sortDir, id) : {};
-            console.log('matching: ', matchingRecords);
-            Object.assign(result, { [referencedBy]: matchingRecords.result });
+            // const matchingRecords = getByFk ? await getByFk(pageNum, pageSize, sortBy, sortDir, id) : {};
+            // console.log('matching: ', matchingRecords);
+            // Object.assign(result, { [referencedBy]: matchingRecords.result });
             Object.keys(result).forEach(key => {
                 const field = result[key];
                 if (checkIsDate(field)) {
@@ -76,7 +80,7 @@ const ViewPage = ({
         history.goBack();
     }
 
-    const copyClipboard = async () => { };
+    // const copyClipboard = async () => { };
     // const copyClipboard = async (event) => {
     //     event.stopPropagation();
     //     const url = event.target.value
@@ -152,7 +156,23 @@ const ViewPage = ({
                                 ))
                             }
                         </Descriptions>
-                        {Array.isArray(data.value[referencedBy]) &&
+                        {referencedBy !== null &&
+                            <>
+                                <Divider><Text strong>{referencedBy} associated with this {name.slice(0, -1)}</Text></Divider>
+                                <ListTable
+                                    baseUrl={referenceUrl}
+                                    columns={listColumns}
+                                    getData={getByFk}
+                                    onDelete={deleteByFk}
+                                    referenceId={id}
+                                    showViewButton={allowView}
+                                    showEditButton={allowView}
+                                    showDeleteButton={allowView}
+                                    allowClickRow={allowClickRow}
+                                />
+                            </>
+                        }
+                        {/* {Array.isArray(data.value[referencedBy]) &&
                             <div className='related-data'>
                                 <Divider />
                                 <List // will be replaced by ListTable
@@ -176,14 +196,14 @@ const ViewPage = ({
                                         {item.s3Url}
                                         {item.remarks}
                                         {item.added}
-                                    </div> */}
+                                    </div> }
                                             <List.Item.Meta
                                                 title={`${item.type}`}
                                                 description={`${item.added}`}
                                             />
                                         </List.Item>}
-                                />
-                            </ div>}
+                                />  {/* end of list }
+                            </ div>} */}
                     </div>
                     : <Empty description={<span>{data.errorMessage}</span>} />
                 }
@@ -204,11 +224,15 @@ ViewPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
+    referenceUrl: string.isRequired,
     dataDescriptors: instanceOf(Array).isRequired,
     getData: func.isRequired,
     getByFk: func,
+    deleteByFk: func,
     referencedBy: string,
-    unpackReferencedFiles: func,
+    allowClickRow: bool,
+    allowView: bool,
+    listColumns: instanceOf(Array),
     onDelete: func,
     showEditButton: bool,
     showDeleteButton: bool,
@@ -219,8 +243,11 @@ ViewPage.defaultProps = {
     icon: null,
     onDelete: null,
     getByFk: null,
+    deleteByFk: null,
     referencedBy: null,
-    unpackReferencedFiles: null,
+    allowClickRow: false,
+    allowView: false,
+    listColumns: null,
     showEditButton: true,
     showDeleteButton: true,
     showBackButton: true,

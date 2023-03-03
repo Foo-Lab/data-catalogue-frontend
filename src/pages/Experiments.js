@@ -99,14 +99,40 @@ const Experiments = () => {
             title: 'Description',
             key: 'description',
         },
-        // {
-        //     title: 'Created At',
-        //     key: 'createdAt',
-        // },
-        // {
-        //     title: 'Updated At',
-        //     key: 'updatedAt',
-        // },
+    ];
+    // list Samples
+    const sampleCols = [
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            render: (date) => moment(date).format('DD/MM/YYYY'),
+            sorter: (a, b) => new Date(b.date) - new Date(a.date),
+        },
+        {
+            title: 'Seq Type',
+            dataIndex: ['SequencingType', 'name'],
+            sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
+        },
+        {
+            title: 'Sample ID',
+            dataIndex: 'code',
+            sorter: (a, b) => compareStrings(a.code, b.code),
+        },
+        {
+            title: 'Sample Name',
+            dataIndex: 'name',
+            sorter: (a, b) => compareStrings(a.name, b.name),
+        },
+        {
+            title: 'Experiment',
+            dataIndex: ['Experiment', 'name'],
+            sorter: (a, b) => compareStrings(a.Experiment.name, b.Experiment.name),
+        },
+        {
+            title: 'User',
+            dataIndex: ['User', 'name'],
+            sorter: (a, b) => compareStrings(a.User.name, b.User.name),
+        },
     ];
 
     // add edit
@@ -154,6 +180,8 @@ const Experiments = () => {
     const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
+    
+    const deleteSampleItem = (id) => apiService.remove('sample', id)
 
     return (
         <div className='experiments-page'>
@@ -180,7 +208,11 @@ const Experiments = () => {
                         getData={getItem}
                         onDelete={deleteItem}
                         getByFk={getByExpt}
-                        unpackReferencedFiles={(record) => `sample-id ${record.id}`}
+                        deleteByFk={deleteSampleItem}
+                        referenceUrl='samples'
+                        // allowClickRow
+                        allowView
+                        listColumns={sampleCols}
                     />
                 </Route>
                 <Route path={`${path}/edit/:id`}>

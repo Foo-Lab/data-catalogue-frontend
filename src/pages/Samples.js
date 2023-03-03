@@ -158,14 +158,32 @@ const Samples = () => {
             title: 'Remarks',
             key: 'remarks',
         },
-        // {
-        //     title: 'Created At',
-        //     key: 'createdAt',
-        // },
-        // {
-        //     title: 'Updated At',
-        //     key: 'updatedAt',
-        // },
+    ];
+    // list SampleFiles
+    const sampleFileCols = [
+        {
+            title: 'Type',
+            dataIndex: ['FileType', 'name'],
+            sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
+        },
+        {
+            title: 'Added',
+            dataIndex: 'createdAt',
+            render: (date) => moment(date).format('DD/MM/YYYY'),
+            sorter: (a, b) => new Date(b.date) - new Date(a.date),
+        },
+        {
+            title: 'URL',
+            dataIndex: 'locationUrl',
+        },
+        {
+            title: 'S3 URL',
+            dataIndex: 'locationS3Url',
+        },
+        {
+            title: 'remarks',
+            dataIndex: 'remarks',
+        },
     ];
 
     // add edit
@@ -273,27 +291,13 @@ const Samples = () => {
 
     const getBySample = (page, size, sort, dir, id) => apiService.getAllWhere(PAGE_NAME, page, size, sort, dir, { route: 'sampleFile', id });
 
-
-    const unpackSampleFiles = (sampleFile) => ({
-        type: sampleFile.FileType.name,
-        locUrl: sampleFile.locationUrl,
-        s3Url: sampleFile.locationS3Url,
-        remarks: sampleFile.remarks,
-        added: moment(sampleFile.createdAt).format('DD/MM/YYYY')
-    })
-
-    const sampleFileFields = {
-        title: 'type',
-        description: 'added',
-        actions: {},
-        extra: {}
-    };
-
     const addItem = (record) => apiService.create(PAGE_NAME, record);
 
     const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
+
+    const deleteSampleFile = (id) => apiService.remove('sampleFile', id)
 
     return (
         <div className='samples-page'>
@@ -320,11 +324,9 @@ const Samples = () => {
                         getData={getItem}
                         onDelete={deleteItem}
                         getByFk={getBySample}
-                        unpackReferencedFiles={unpackSampleFiles}
-                        fileInfo={sampleFileFields}
+                        deleteByFk={deleteSampleFile}
+                        listColumns={sampleFileCols}
                     />
-                    {/* fileTypes.filter(r => r.id===record.fileTypeId)[0].name */}
-                    {/* {fileTypes && console.log('FILETYPES',fileTypes.filter(r => r.id===1)[0].name)} */}
                 </Route>
                 <Route path={`${path}/edit/:id`}>
                     <EditPage

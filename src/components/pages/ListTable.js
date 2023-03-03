@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { string, element, instanceOf, bool, func } from 'prop-types';
+import { string, instanceOf, bool, func } from 'prop-types';
 import { useHistory, Link } from 'react-router-dom';
-import { Table, Tooltip, Button } from 'antd';
+import { Table, Tooltip, Button, Empty } from 'antd';
 import {
-    PlusOutlined,
     EyeOutlined,
     EditOutlined,
     DeleteOutlined,
@@ -12,10 +11,16 @@ import {
 
 import DeleteModal from '../DeleteModal';
 
+import {
+    checkIsDate,
+    checkIsDateTime,
+    formatDate,
+    formatDateTime,
+} from '../../utilities';
+import { useDataReducer } from '../../hooks';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListTable.scss';
-import { useDataReducer } from '../../hooks';
 
 
 const ListTable = ({
@@ -23,16 +28,14 @@ const ListTable = ({
     columns,
     getData,
     onDelete,
-    showAddButton,
+    referenceId,
     showViewButton,
     showEditButton,
     showDeleteButton,
-    showBackButton,
     allowClickRow,
 }) => {
     const dispatch = useDispatch();
     const history = useHistory();
-    const pageContent = useRef();
 
     const [data, dataDispatch] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
@@ -43,11 +46,20 @@ const ListTable = ({
     const pageSize = useSelector(state => state.listPage.pageSize);
     const sortBy = useSelector(state => state.listPage.sortBy);
     const sortDir = useSelector(state => state.listPage.sortDir);
-    
+
     useEffect(() => {
+        setLoading(true);
         const fetchData = async () => {
-            const { result } = await getByFk(id)
-            Object.keys(result)
+            const { count, result } = await getData(
+                pageNum,
+                pageSize,
+                sortBy,
+                sortDir,
+                referenceId // not provided by ListPage
+            );
+            setTotalRecords(count);
+
+            Object.keys(result) // formats the values inside `result` if they are `date` or `datetime` objects
                 .forEach(key => {
                     const field = result[key];
                     if (checkIsDate(field)) {
@@ -56,7 +68,8 @@ const ListTable = ({
                         result[key] = formatDateTime(field);
                     }
                 });
-            console.log('THE RESULT', result);
+
+            setLoading(false);
             dataDispatch({ type: "SET_DATA", value: result });
         };
 
@@ -64,7 +77,7 @@ const ListTable = ({
             console.error(error);
             dataDispatch({ type: "ERROR", value: error });
         });
-    }, [id]);
+    }, [pageNum, pageSize, sortBy, sortDir, referenceId]);
 
     const onChange = (pagination, filters, sorter, extra) => {
         const { action } = extra;
@@ -100,11 +113,17 @@ const ListTable = ({
         event.stopPropagation();
     }
 
+    const onDeleteItem = async (item) => {
+        await onDelete(item.id);
+        // setData(d => d.filter(e => e.id !== item.id));
+        dataDispatch({ type: "DELETE_RECORD", value: item.id });
+    }
+    const url = referenceId !== null ? `/${baseUrl}` : baseUrl;
     const renderListActions = (id, record) => (
         <div className='list-actions'>
             {showViewButton &&
                 <Link
-                    to={`${baseUrl}/view/${id}`}
+                    to={`${url}/view/${id}`}
                     onClick={onClickAction}
                 >
                     <Tooltip title='View'>
@@ -114,7 +133,7 @@ const ListTable = ({
             }
             {showEditButton &&
                 <Link
-                    to={`${baseUrl}/edit/${id}`}
+                    to={`${url}/edit/${id}`}
                     onClick={onClickAction}
                 >
                     <Tooltip title='Edit'>
@@ -128,7 +147,6 @@ const ListTable = ({
                     onClick={(event) => {
                         event.stopPropagation();
                         setItemToDelete(record);
-                        setModalOpen(true);
                     }}
                 >
                     <Tooltip title='Delete'>
@@ -138,58 +156,73 @@ const ListTable = ({
             }
         </div>
     );
-    return (<Table
-        columns={
-            (showViewButton || showEditButton || showDeleteButton)
-                ? [
-                    ...columns,
-                    {
-                        title: 'Actions',
-                        dataIndex: 'id',
-                        width: 100,
-                        render: (id, record) => renderListActions(id, record),
+    return (
+        <div>
+            {data.ok ?
+                <div>
+                    <Table
+                        columns={
+                            (showViewButton || showEditButton || showDeleteButton)
+                                ? [
+                                    ...columns,
+                                    {
+                                        title: 'Actions',
+                                        dataIndex: 'id',
+                                        width: 100,
+                                        render: (id, record) => renderListActions(id, record),
+                                    }
+                                ]
+                                : columns
+                        }
+                        dataSource={data.value}
+                        rowKey='id'
+                        onChange={onChange}
+                        onRow={(record) => ({
+                            onClick: () => onClickRow(record),
+                        })}
+                        sticky
+                        loading={isLoading}
+                        pagination={{
+                            current: pageNum,
+                            pageSize,
+                            showSizeChanger: true,
+                            total: totalRecords,
+                            showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
+                        }}
+                    />
+                    {itemToDelete?.name &&
+                        <DeleteModal
+                            name={itemToDelete.name}
+                            isOpen={itemToDelete !== null}
+                            toggleItemToDelete={setItemToDelete}
+                            onDelete={() => onDeleteItem(itemToDelete)}
+                        />
                     }
-                ]
-                : columns
-        }
-        dataSource={data.value}
-        rowKey='id'
-        onChange={onChange}
-        onRow={(record) => ({
-            onClick: () => onClickRow(record),
-        })}
-        sticky
-        loading={isLoading}
-        pagination={{
-            current: pageNum,
-            pageSize,
-            showSizeChanger: true,
-            total: totalRecords,
-            showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
-        }}
-    />)
+                </div>
+                : <Empty description={<span>{data.errorMessage}</span>} />
+            }
+        </div>
+    )
 }
 
-ListPage.propTypes = {
+ListTable.propTypes = {
     baseUrl: string.isRequired,
     columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
-    showAddButton: bool,
+    referenceId: string,
     showViewButton: bool,
     showEditButton: bool,
     showDeleteButton: bool,
-    showBackButton: bool,
     allowClickRow: bool,
 };
 
-ListPage.defaultProps = {
+ListTable.defaultProps = {
     onDelete: null,
-    showAddButton: true,
+    referenceId: null,
     showViewButton: true,
     showEditButton: true,
     showDeleteButton: true,
-    showBackButton: false,
     allowClickRow: true,
 };
 
