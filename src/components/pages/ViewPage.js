@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { string, element, instanceOf, func, bool } from 'prop-types';
+import { shape, string, element, instanceOf, func, bool } from 'prop-types';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Descriptions, Tooltip, Button, Empty, Divider, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -32,7 +32,6 @@ const ViewPage = ({
     getByFk,
     deleteByFk,
     referencedBy,
-    referenceUrl,
     allowClickRow,
     allowView,
     listColumns,
@@ -158,9 +157,9 @@ const ViewPage = ({
                         </Descriptions>
                         {referencedBy !== null &&
                             <>
-                                <Divider><Text strong>{referencedBy} associated with this {name.slice(0, -1)}</Text></Divider>
+                                <Divider><Text strong>{referencedBy.name} associated with this {name.slice(0, -1)}</Text></Divider>
                                 <ListTable
-                                    baseUrl={referenceUrl}
+                                    baseUrl={referencedBy.url}
                                     columns={listColumns}
                                     getData={getByFk}
                                     onDelete={deleteByFk}
@@ -172,38 +171,6 @@ const ViewPage = ({
                                 />
                             </>
                         }
-                        {/* {Array.isArray(data.value[referencedBy]) &&
-                            <div className='related-data'>
-                                <Divider />
-                                <List // will be replaced by ListTable
-                                    header={<Text strong>{referencedBy} associated with this {name.slice(0, -1)}</Text>}
-                                    size='small'
-                                    bordered
-                                    dataSource={data.value[referencedBy].map(unpackReferencedFiles)}
-                                    renderItem={(item) =>
-                                        <List.Item
-                                            actions={[
-                                                // <Space>{item.type}</Space>,
-                                                <Space onClick={copyClipboard}>{item.locUrl}</Space>,
-                                                <Space onClick={copyClipboard}>{item.s3Url}</Space>,
-                                                // <Space>{item.added}</Space>,
-                                            ]}
-                                            extra={item.remarks}
-                                        >
-                                            {/* <div>
-                                        {item.type}
-                                        {item.locUrl}
-                                        {item.s3Url}
-                                        {item.remarks}
-                                        {item.added}
-                                    </div> }
-                                            <List.Item.Meta
-                                                title={`${item.type}`}
-                                                description={`${item.added}`}
-                                            />
-                                        </List.Item>}
-                                />  {/* end of list }
-                            </ div>} */}
                     </div>
                     : <Empty description={<span>{data.errorMessage}</span>} />
                 }
@@ -224,12 +191,15 @@ ViewPage.propTypes = {
     name: string.isRequired,
     icon: element,
     baseUrl: string.isRequired,
-    referenceUrl: string.isRequired,
     dataDescriptors: instanceOf(Array).isRequired,
     getData: func.isRequired,
     getByFk: func,
     deleteByFk: func,
-    referencedBy: string,
+    referencedBy:
+        shape({
+            url: string,
+            name: string.isRequired,
+        }),
     allowClickRow: bool,
     allowView: bool,
     listColumns: instanceOf(Array),

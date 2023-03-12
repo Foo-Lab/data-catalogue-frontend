@@ -65,49 +65,6 @@ const ListPage = ({
                     showDeleteButton={showDeleteButton}
                     allowClickRow={allowClickRow}
                 />
-                {/* {data.ok ?
-                    <Table
-                        columns={
-                            (showViewButton || showEditButton || showDeleteButton)
-                                ? [
-                                    ...columns,
-                                    {
-                                        title: 'Actions',
-                                        dataIndex: 'id',
-                                        width: 100,
-                                        render: (id, record) => renderListActions(id, record),
-                                    }
-                                ]
-                                : columns
-                        }
-                        dataSource={data.value}
-                        rowKey='id'
-                        onChange={onChange}
-                        onRow={(record) => ({
-                            onClick: () => onClickRow(record),
-                        })}
-                        sticky
-                        loading={isLoading}
-                        pagination={{
-                            current: pageNum,
-                            pageSize,
-                            showSizeChanger: true,
-                            total: totalRecords,
-                            showTotal: (total, range) => `${range[0]} - ${range[1]} of ${total} records`,
-                        }}
-                    />
-                    : <Empty description={<span>{data.errorMessage}</span>} />
-
-                }
-            </div>
-            {itemToDelete?.name &&
-                <DeleteModal
-                    name={itemToDelete.name}
-                    isOpen={itemToDelete !== null}
-                    toggleItemToDelete={setItemToDelete}
-                    onDelete={() => onDeleteItem(itemToDelete)}
-                />
-            } */}
             </div>
         </div>
     );

@@ -23,7 +23,7 @@ const Samples = () => {
     const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
-        referencedBy: 'SampleFiles',
+        referencedBy: { name: 'Sample Files' },
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });

@@ -24,7 +24,7 @@ const Experiments = () => {
     console.log(`url ${url}\npath ${path}`);
     const pageProps = useRef({
         name: plural(PAGE_NAME),
-        referencedBy: 'Samples',
+        referencedBy: { name: 'Samples', url: 'samples' },
         icon: <ExperimentOutlined />,
         baseUrl: url,
     });
@@ -38,8 +38,8 @@ const Experiments = () => {
         };
         try {
             getOptions();
-        } catch (error) { 
-            console.log(error) 
+        } catch (error) {
+            console.log(error)
         }
         return () => {
             dispatch(clearPageState());
@@ -180,7 +180,7 @@ const Experiments = () => {
     const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
-    
+
     const deleteSampleItem = (id) => apiService.remove('sample', id)
 
     return (
@@ -209,7 +209,6 @@ const Experiments = () => {
                         onDelete={deleteItem}
                         getByFk={getByExpt}
                         deleteByFk={deleteSampleItem}
-                        referenceUrl='samples'
                         // allowClickRow
                         allowView
                         listColumns={sampleCols}

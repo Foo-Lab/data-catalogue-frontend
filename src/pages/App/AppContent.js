@@ -23,7 +23,7 @@ const AppContent = () => (
 
         <Route path='/profile' component={Profile} />
         <Route exact path='/login' component={Login} />
-        <Route exact path='/' component={Experiments} />
+        <Route exact path='/' render={() => <div>Welcome, click the sidebar to start</div>} />
     </Switch>
 );
 

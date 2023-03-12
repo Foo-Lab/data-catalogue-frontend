@@ -206,7 +206,7 @@ const ListTable = ({
 }
 
 ListTable.propTypes = {
-    baseUrl: string.isRequired,
+    baseUrl: string,
     columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
@@ -218,6 +218,7 @@ ListTable.propTypes = {
 };
 
 ListTable.defaultProps = {
+    baseUrl: '',
     onDelete: null,
     referenceId: null,
     showViewButton: true,
