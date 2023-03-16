@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Experiments from '../Experiments';
 import Samples from '../Samples';
@@ -7,7 +7,9 @@ import Config from '../Configs';
 import Profile from '../Profile';
 import Login from '../Login';
 
-import constants  from '../../constants';
+import constants from '../../constants';
+
+const auth = { 'token': false };
 
 const AppContent = () => (
     <Switch>
@@ -23,7 +25,9 @@ const AppContent = () => (
 
         <Route path='/profile' component={Profile} />
         <Route exact path='/login' component={Login} />
-        <Route exact path='/' render={() => <div>Welcome, click the sidebar to start</div>} />
+        <Route exact path='/' >
+            {auth.token ? <Redirect to="/experiments" /> : <Redirect to="/login" />}
+        </Route>
     </Switch>
 );
 
