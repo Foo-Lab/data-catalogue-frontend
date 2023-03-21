@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { shape, string, element, instanceOf, func, bool } from 'prop-types';
-import { Link, useHistory, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Descriptions, Tooltip, Button, Empty, Divider, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 // import { useSelector } from 'react-redux';
@@ -26,7 +26,6 @@ const { Item } = Descriptions;
 const ViewPage = ({
     name,
     icon,
-    baseUrl,
     dataDescriptors,
     getData,
     getByFk,
@@ -40,7 +39,7 @@ const ViewPage = ({
     showDeleteButton,
     showBackButton,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { id } = useParams();
     const [data, dataDispatch] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
@@ -76,7 +75,7 @@ const ViewPage = ({
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
-        history.goBack();
+        navigate(-1);
     }
 
     // const copyClipboard = async () => { };
@@ -101,7 +100,7 @@ const ViewPage = ({
             >
                 <>
                     {showEditButton &&
-                        <Link to={`${baseUrl}/edit/${id}`}>
+                        <Link to={`../edit/${id}`}>
                             <Tooltip title={`Edit ${name}`}>
                                 <Button
                                     type='primary'
@@ -159,7 +158,7 @@ const ViewPage = ({
                             <>
                                 <Divider><Text strong>{referencedBy.name} associated with this {name.slice(0, -1)}</Text></Divider>
                                 <ListTable
-                                    baseUrl={referencedBy.url}
+                                    referenceUrl={referencedBy.url}
                                     columns={listColumns}
                                     getData={getByFk}
                                     onDelete={deleteByFk}
@@ -190,7 +189,6 @@ const ViewPage = ({
 ViewPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
     dataDescriptors: instanceOf(Array).isRequired,
     getData: func.isRequired,
     getByFk: func,

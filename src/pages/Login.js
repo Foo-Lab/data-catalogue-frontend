@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Alert, Card, Form, Input, Button, Spin } from 'antd';
 import {
     LoginOutlined,
@@ -16,7 +16,7 @@ import './Login.scss';
 
 const Login = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
     const pageProps = useRef({
         name: 'login',
         icon: <LoginOutlined />,
@@ -29,7 +29,7 @@ const Login = () => {
     useEffect(() => {
         if (isSuccess) {
             dispatch(clearState());
-            history.push('/');
+            navigate('/');
         }
     }, [isSuccess]);
 

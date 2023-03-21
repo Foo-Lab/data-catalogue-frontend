@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { string, element, bool } from 'prop-types';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { PageHeader as AntdPageHeader } from 'antd';
 
 import { splitCamelCase } from '../utilities';
@@ -14,11 +14,14 @@ const PageHeader = ({
     showBackButton,
     children,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
 
     useEffect(() => {
-        const paths = (history.location.pathname)
+        console.log('location', location)
+        console.log('pathname', location.pathname)
+        const paths = (location.pathname)
             .split('/')
             .filter((p) => p && !Number(p))
             .map((p) => ({
@@ -33,7 +36,7 @@ const PageHeader = ({
             },
             ...paths,
         ]);
-    }, [history.location.pathname]);
+    }, [location.pathname]);
 
     const renderBreadcrumb = (route, params, routes, paths) => {
         const last = routes.indexOf(route) === routes.length - 1;
@@ -63,7 +66,7 @@ const PageHeader = ({
             }
             onBack={
                 showBackButton
-                    ? () => history.goBack()
+                    ? () => navigate(-1)
                     : null
             }
             breadcrumb={{

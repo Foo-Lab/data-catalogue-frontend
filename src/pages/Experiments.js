@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
 import { ExperimentOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -20,13 +20,10 @@ const PAGE_NAME = 'experiment';
 
 const Experiments = () => {
     const dispatch = useDispatch();
-    const { url, path } = useRouteMatch();
-    console.log(`url ${url}\npath ${path}`);
     const pageProps = useRef({
         name: plural(PAGE_NAME),
         referencedBy: { name: 'Samples', url: 'samples' },
         icon: <ExperimentOutlined />,
-        baseUrl: url,
     });
 
     const [users, setUsers] = useState([]);
@@ -185,23 +182,23 @@ const Experiments = () => {
 
     return (
         <div className='experiments-page'>
-            <Switch>
-                <Route exact path={path}>
+            <Routes>
+                <Route path="/" element={
                     <ListPage
                         {...pageProps.current}
                         columns={tableColumns}
                         getData={getAllItems}
                         onDelete={deleteItem}
-                    />
-                </Route>
-                <Route path={`${path}/add`}>
+                    />}
+                />
+                <Route path="add" element={
                     <AddPage
                         {...pageProps.current}
                         fields={formFields}
                         onAdd={addItem}
-                    />
-                </Route>
-                <Route path={`${path}/view/:id`}>
+                    />}
+                />
+                <Route path="view/:id" element={
                     <ViewPage
                         {...pageProps.current}
                         dataDescriptors={listRows}
@@ -209,20 +206,20 @@ const Experiments = () => {
                         onDelete={deleteItem}
                         getByFk={getByExpt}
                         deleteByFk={deleteSampleItem}
-                        // allowClickRow
+                        allowClickRow
                         allowView
                         listColumns={sampleCols}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
+                    />}
+                />
+                <Route path="edit/:id" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };

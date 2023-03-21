@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Menu } from 'antd';
 import {
     DatabaseOutlined,
@@ -75,12 +75,12 @@ const menuItems = [
 ]
 
 const AppMenu = () => {
-    const history = useHistory();
+    const location = useLocation();
     const [ selectedKeys, setSelectedKeys ] = useState([]);
     const [ openKeys, setOpenKeys ] = useState([]);
 
     useEffect(() => {
-        const currentPath = (history.location.pathname).split('/')[1];
+        const currentPath = (location.pathname).split('/')[1];
         setSelectedKeys([ currentPath ]);
 
         const openSubmenu = menuItems.find(i =>
@@ -89,7 +89,7 @@ const AppMenu = () => {
         if (openSubmenu) {
             setOpenKeys([ openSubmenu.key ]);
         }
-    }, [history.location.pathname]);
+    }, [location.pathname]);
 
     const onSelect = ({ key }) => setSelectedKeys([ key ]);
 

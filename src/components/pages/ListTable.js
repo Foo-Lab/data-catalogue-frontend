@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, instanceOf, bool, func } from 'prop-types';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Table, Tooltip, Button, Empty } from 'antd';
 import {
     EyeOutlined,
@@ -24,18 +24,18 @@ import './ListTable.scss';
 
 
 const ListTable = ({
-    baseUrl,
     columns,
     getData,
     onDelete,
     referenceId,
+    referenceUrl,
     showViewButton,
     showEditButton,
     showDeleteButton,
     allowClickRow,
 }) => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [data, dataDispatch] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
@@ -107,7 +107,9 @@ const ListTable = ({
         }
     };
 
-    const onClickRow = (record) => allowClickRow && history.push(`${baseUrl}/view/${record.id}`)
+    const prefix = referenceUrl !== null ? `../../${referenceUrl}/` : '';
+
+    const onClickRow = (record) => allowClickRow && navigate(`${prefix}view/${record.id}`)
 
     const onClickAction = (event) => {
         event.stopPropagation();
@@ -118,12 +120,11 @@ const ListTable = ({
         // setData(d => d.filter(e => e.id !== item.id));
         dataDispatch({ type: "DELETE_RECORD", value: item.id });
     }
-    const url = referenceId !== null ? `/${baseUrl}` : baseUrl;
     const renderListActions = (id, record) => (
         <div className='list-actions'>
             {showViewButton &&
                 <Link
-                    to={`${url}/view/${id}`}
+                    to={`${prefix}view/${id}`}
                     onClick={onClickAction}
                 >
                     <Tooltip title='View'>
@@ -133,7 +134,7 @@ const ListTable = ({
             }
             {showEditButton &&
                 <Link
-                    to={`${url}/edit/${id}`}
+                    to={`${prefix}edit/${id}`}
                     onClick={onClickAction}
                 >
                     <Tooltip title='Edit'>
@@ -206,11 +207,11 @@ const ListTable = ({
 }
 
 ListTable.propTypes = {
-    baseUrl: string,
     columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
     referenceId: string,
+    referenceUrl: string,
     showViewButton: bool,
     showEditButton: bool,
     showDeleteButton: bool,
@@ -218,9 +219,9 @@ ListTable.propTypes = {
 };
 
 ListTable.defaultProps = {
-    baseUrl: '',
     onDelete: null,
     referenceId: null,
+    referenceUrl: null,
     showViewButton: true,
     showEditButton: true,
     showDeleteButton: true,

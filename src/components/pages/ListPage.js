@@ -13,7 +13,6 @@ import './ListPage.scss';
 const ListPage = ({
     name,
     icon,
-    baseUrl,
     columns,
     getData,
     onDelete,
@@ -42,7 +41,7 @@ const ListPage = ({
                 showBackButton={showBackButton}
             >
                 {showAddButton &&
-                    <Link to={`${baseUrl}/add`}>
+                    <Link to='add'>
                         <Tooltip title='Add'>
                             <Button
                                 type='primary'
@@ -56,7 +55,6 @@ const ListPage = ({
 
             <div className='page-content' ref={pageContent}>
                 <ListTable 
-                    baseUrl={baseUrl}
                     columns={columns}
                     getData={getData}
                     onDelete={onDelete}
@@ -73,7 +71,6 @@ const ListPage = ({
 ListPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
     columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,

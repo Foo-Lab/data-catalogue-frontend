@@ -1,6 +1,6 @@
 import React from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
@@ -10,19 +10,18 @@ import './AddPage.scss';
 const AddPage = ({
     name,
     icon,
-    baseUrl,
     fields,
     onAdd,
     showBackButton,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const onFinish = async (values) => {
         await onAdd(values);
-        history.push(baseUrl);
+        navigate(-1);
     }
 
-    const onCancel = () => history.goBack();
+    const onCancel = () => navigate(-1);
 
     const renderForm = () => (
         <Form
@@ -79,7 +78,6 @@ const AddPage = ({
 AddPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
     fields: instanceOf(Array).isRequired,
     onAdd: func.isRequired,
     showBackButton: bool,

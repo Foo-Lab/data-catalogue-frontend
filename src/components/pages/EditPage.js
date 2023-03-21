@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
@@ -20,7 +20,7 @@ const EditPage = ({
     isProfilePage
 }) => {
     console.log(`Different edit page for profile: ${isProfilePage}`);
-    const history = useHistory();
+    const navigate = useNavigate();
     const { id } = useParams();
     const [submitError, setSubmitError] = useState(null);
     const [data, dataDispatch] = useDataReducer();
@@ -47,14 +47,14 @@ const EditPage = ({
         try {
             console.log(values);
             await onEdit(id, values);
-            history.goBack();
+            navigate(-1);
         } catch (error) {
             console.error(error);
             setSubmitError(error);
         }
     }
 
-    const onCancel = () => history.goBack();
+    const onCancel = () => navigate(-1);
 
     const renderForm = () => (
         <Form

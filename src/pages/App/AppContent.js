@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Experiments from '../Experiments';
 import Samples from '../Samples';
@@ -12,23 +12,21 @@ import constants from '../../constants';
 const auth = { 'token': false };
 
 const AppContent = () => (
-    <Switch>
-        <Route path='/experiments' component={Experiments} />
-        <Route path='/samples' component={Samples} />
+    <Routes>
+        <Route path='/experiments/*' element={<Experiments />} />
+        <Route path='/samples/*' element={<Samples />} />
 
-        <Route path='/fileTypes' key='fileTypes' render={() => <Config name={constants.CONFIG_FILE_TYPE} />} />
-        <Route path='/organisms' key='organisms' render={() => <Config name={constants.CONFIG_ORGANISM} />} />
-        <Route path='/sequencers' key='sequencers' render={() => <Config name={constants.CONFIG_SEQUENCER} />} />
-        <Route path='/sequencingProviders' key='sequencingProviders' render={() => <Config name={constants.CONFIG_SEQUENCING_PROVIDER} />} />
-        <Route path='/sequencingTypes' key='sequencingTypes' render={() => <Config name={constants.CONFIG_SEQUENCING_TYPE} />} />
-        <Route path='/statuses' key='statuses' render={() => <Config name={constants.CONFIG_STATUS} />} />
+        <Route path='/fileTypes/*' element={<Config name={constants.CONFIG_FILE_TYPE} key='fileTypes' />} />
+        <Route path='/organisms/*' element={<Config name={constants.CONFIG_ORGANISM} key='organisms' />} />
+        <Route path='/sequencers/*' element={<Config name={constants.CONFIG_SEQUENCER} key='sequencers' />} />
+        <Route path='/sequencingProviders/*' element={<Config name={constants.CONFIG_SEQUENCING_PROVIDER} key='sequencingProviders' />} />
+        <Route path='/sequencingTypes/*' element={<Config name={constants.CONFIG_SEQUENCING_TYPE} key='sequencingTypes' />} />
+        <Route path='/statuses/*' element={<Config name={constants.CONFIG_STATUS} key='statuses' />} />
 
-        <Route path='/profile' component={Profile} />
-        <Route exact path='/login' component={Login} />
-        <Route exact path='/' >
-            {auth.token ? <Redirect to="/experiments" /> : <Redirect to="/login" />}
-        </Route>
-    </Switch>
+        <Route path='/profile/*' element={<Profile />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/' element={<Navigate to={auth.token ? "/experiments" : "/login"} replace />} />
+    </Routes>
 );
 
 export default AppContent;

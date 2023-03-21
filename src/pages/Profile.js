@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Switch, Route, useRouteMatch, Link } from 'react-router-dom';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { Input, Button, Checkbox } from 'antd';
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 
@@ -14,11 +14,9 @@ import AddPage from '../components/pages/AddPage';
 const PAGE_NAME = 'user';
 
 const Profile = () => {
-    const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: 'Profile',
         icon: <UserOutlined />,
-        baseUrl: url,
     });
     const newPasswordRef = useRef();
 
@@ -156,7 +154,7 @@ const Profile = () => {
     const getItem = (id) => apiService.getById('user', id);
 
     const addItem = (record) => {
-        apiService.create(PAGE_NAME, {...record, password: 'password'});
+        apiService.create(PAGE_NAME, { ...record, password: 'password' });
     }
 
     const updateItem = (id, record) => apiService.update('user', id, record);
@@ -165,48 +163,51 @@ const Profile = () => {
 
     return (
         <div className='profile-page'>
-            <Switch>
-                <Route exact path="/profile">
+            <Routes>
+                <Route path="/" element={
+                    false ?
+                        <Navigate to="me" replace /> :
+                        <ListPage
+                            {...pageProps.current}
+                            columns={tableColumns}
+                            getData={getAllItems}
+                            onDelete={deleteItem}
+                        />}
+                />
+                <Route path='me' element={
                     <div>
                         <p>Own profile should be displayed here</p>
-                        <Link to='profile/all'>
+                        <Link to='..'>
                             <Button>Show all profiles</Button>
                         </Link>
-                    </div>
-                </Route>
-                <Route path={`${path}/all`}>
-                    <ListPage
-                        {...pageProps.current}
-                        columns={tableColumns}
-                        getData={getAllItems}
-                        onDelete={deleteItem} />
-                </Route>
-                <Route path={`${path}/add`}>
+                    </div>}
+                />
+                <Route path="add" element={
                     <AddPage
                         {...pageProps.current}
                         fields={addNewFields}
                         onAdd={addItem}
-                    />
-                </Route>
-                <Route path={`${path}/view/:id`}>
+                    />}
+                />
+                <Route path="view/:id" element={
                     <ViewPage
                         {...pageProps.current}
                         dataDescriptors={listRows}
                         getData={getItem}
                         showDeleteButton={false}
                         showBackButton={false}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
+                    />}
+                />
+                <Route path="edit/:id" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
                         isProfilePage
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };

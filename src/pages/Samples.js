@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
 import { ExperimentOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -20,12 +20,11 @@ const PAGE_NAME = 'sample';
 
 const Samples = () => {
     const dispatch = useDispatch();
-    const { url, path } = useRouteMatch();
+    // const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
         referencedBy: { name: 'Sample Files' },
         icon: <ExperimentOutlined />,
-        baseUrl: url,
     });
 
     const [experiments, setExperiments] = useState([]);
@@ -301,23 +300,23 @@ const Samples = () => {
 
     return (
         <div className='samples-page'>
-            <Switch>
-                <Route exact path={path}>
+            <Routes>
+                <Route path="/" element={
                     <ListPage
                         {...pageProps.current}
                         columns={tableColumns}
                         getData={getAllItems}
                         onDelete={deleteItem}
-                    />
-                </Route>
-                <Route path={`${path}/add`}>
+                    />}
+                />
+                <Route path="add" element={
                     <AddPage
                         {...pageProps.current}
                         fields={formFields}
                         onAdd={addItem}
-                    />
-                </Route>
-                <Route path={`${path}/view/:id`}>
+                    />}
+                />
+                <Route path="view/:id" element={
                     <ViewPage
                         {...pageProps.current}
                         dataDescriptors={listRows}
@@ -326,17 +325,17 @@ const Samples = () => {
                         getByFk={getBySample}
                         deleteByFk={deleteSampleFile}
                         listColumns={sampleFileCols}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
+                    />}
+                />
+                <Route path="edit/:id" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { string } from 'prop-types';
 import { Input } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
@@ -16,12 +16,14 @@ import { splitCamelCase, compareStrings } from '../utilities';
 
 const Configs = ({ name }) => {
     const dispatch = useDispatch();
-    const { url, path } = useRouteMatch();
     const pageProps = useRef({
         name: splitCamelCase(plural(name)),
         icon: <SettingOutlined />,
-        baseUrl: url,
     });
+
+    useEffect(() => {
+        console.log(name)
+    }, [name])
 
     useEffect(() => () => {
         dispatch(clearPageState());
@@ -53,14 +55,14 @@ const Configs = ({ name }) => {
 
     const addItem = (record) => apiService.create(name, record);
 
-    const updateItem =  (id, record) => apiService.update(name, id, record);
+    const updateItem = (id, record) => apiService.update(name, id, record);
 
     const deleteItem = (id) => apiService.remove(name, id)
 
     return (
         <div className='configs-page'>
-            <Switch>
-                <Route exact path={path}>
+            <Routes>
+                <Route path="/" element={
                     <ListPage
                         {...pageProps.current}
                         columns={tableColumns}
@@ -68,24 +70,24 @@ const Configs = ({ name }) => {
                         onDelete={deleteItem}
                         showViewButton={false}
                         allowClickRow={false}
-                    />
-                </Route>
-                <Route path={`${path}/add`}>
+                    />}
+                />
+                <Route path="add" element={
                     <AddPage
                         {...pageProps.current}
                         fields={formFields}
                         onAdd={addItem}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
+                    />}
+                />
+                <Route path="edit/:id" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };
