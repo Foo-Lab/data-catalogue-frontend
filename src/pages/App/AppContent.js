@@ -9,7 +9,9 @@ import Login from '../Login';
 
 import constants from '../../constants';
 
-const auth = { 'token': false };
+// TODO check if AccessToken exists and is valid
+// TODO wrap all routes except login with PrivateRoute
+const auth = { 'token': false }; 
 
 const AppContent = () => (
     <Routes>
