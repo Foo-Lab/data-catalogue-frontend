@@ -125,6 +125,7 @@ const ListTable = ({
             {showViewButton &&
                 <Link
                     to={`${prefix}view/${id}`}
+                    relative='path'
                     onClick={onClickAction}
                 >
                     <Tooltip title='View'>
@@ -135,6 +136,7 @@ const ListTable = ({
             {showEditButton &&
                 <Link
                     to={`${prefix}edit/${id}`}
+                    relative='path'
                     onClick={onClickAction}
                 >
                     <Tooltip title='Edit'>

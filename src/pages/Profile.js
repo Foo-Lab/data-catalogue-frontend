@@ -177,7 +177,7 @@ const Profile = () => {
                 <Route path='me' element={
                     <div>
                         <p>Own profile should be displayed here</p>
-                        <Link to='..'>
+                        <Link to='..' relative='path'>
                             <Button>Show all profiles</Button>
                         </Link>
                     </div>}
