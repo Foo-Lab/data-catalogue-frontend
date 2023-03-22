@@ -165,14 +165,16 @@ const Profile = () => {
         <div className='profile-page'>
             <Routes>
                 <Route path="/" element={
-                    false ?
-                        <Navigate to="me" replace /> :
-                        <ListPage
-                            {...pageProps.current}
-                            columns={tableColumns}
-                            getData={getAllItems}
-                            onDelete={deleteItem}
-                        />}
+                    false // TODO change to a check if the user is not an admin
+                        ? <Navigate to="me" replace />
+                        : (
+                            <ListPage
+                                {...pageProps.current}
+                                columns={tableColumns}
+                                getData={getAllItems}
+                                onDelete={deleteItem}
+                            />
+                        )}
                 />
                 <Route path='me' element={
                     <div>
@@ -189,7 +191,7 @@ const Profile = () => {
                         onAdd={addItem}
                     />}
                 />
-                <Route path="view/:id" element={
+                <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
                         dataDescriptors={listRows}
@@ -198,7 +200,7 @@ const Profile = () => {
                         showBackButton={false}
                     />}
                 />
-                <Route path="edit/:id" element={
+                <Route path=":id/edit" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}

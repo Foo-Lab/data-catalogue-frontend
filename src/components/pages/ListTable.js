@@ -109,7 +109,7 @@ const ListTable = ({
 
     const prefix = referenceUrl !== null ? `../../${referenceUrl}/` : '';
 
-    const onClickRow = (record) => allowClickRow && navigate(`${prefix}view/${record.id}`)
+    const onClickRow = (record) => allowClickRow && navigate(`${prefix}${record.id}`)
 
     const onClickAction = (event) => {
         event.stopPropagation();
@@ -124,7 +124,7 @@ const ListTable = ({
         <div className='list-actions'>
             {showViewButton &&
                 <Link
-                    to={`${prefix}view/${id}`}
+                    to={`${prefix}${id}`}
                     relative='path'
                     onClick={onClickAction}
                 >
@@ -135,7 +135,7 @@ const ListTable = ({
             }
             {showEditButton &&
                 <Link
-                    to={`${prefix}edit/${id}`}
+                    to={`${prefix}${id}/edit`}
                     relative='path'
                     onClick={onClickAction}
                 >

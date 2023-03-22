@@ -316,7 +316,7 @@ const Samples = () => {
                         onAdd={addItem}
                     />}
                 />
-                <Route path="view/:id" element={
+                <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
                         dataDescriptors={listRows}
@@ -327,7 +327,7 @@ const Samples = () => {
                         listColumns={sampleFileCols}
                     />}
                 />
-                <Route path="edit/:id" element={
+                <Route path=":id/edit" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}

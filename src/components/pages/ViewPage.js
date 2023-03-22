@@ -100,7 +100,7 @@ const ViewPage = ({
             >
                 <>
                     {showEditButton &&
-                        <Link to={`../../edit/${id}`} relative='path'>
+                        <Link to='edit'>
                             <Tooltip title={`Edit ${name}`}>
                                 <Button
                                     type='primary'
