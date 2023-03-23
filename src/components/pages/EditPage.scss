@@ -1,5 +1,9 @@
 .edit-page {
     .page-content {
+        label {
+            text-align: "left";
+            min-width: 180px;
+        }
         .ant-form-item-control-input-content {
             display: flex;
         }
@@ -12,7 +16,7 @@
             margin-top: 50px;
 
             .ant-form-item-control-input-content {
-                justify-content:  space-between;
+                justify-content: space-between;
             }
         }
     }

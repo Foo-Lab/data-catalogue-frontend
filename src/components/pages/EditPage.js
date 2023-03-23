@@ -9,6 +9,7 @@ import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
 import { useDataReducer } from '../../hooks';
+import ErrorAlert from '../ErrorAlert';
 
 const EditPage = ({
     name,
@@ -17,7 +18,6 @@ const EditPage = ({
     getData,
     onEdit,
     showBackButton,
-    isProfilePage
 }) => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -43,13 +43,14 @@ const EditPage = ({
     }, [id]);
 
     const onFinish = async (values) => {
+        setSubmitError(null);
         try {
             console.log(values);
             await onEdit(id, values);
             navigate(-1);
         } catch (error) {
             console.error(error);
-            setSubmitError(error);
+            setSubmitError(error.message);
         }
     }
 
@@ -58,9 +59,6 @@ const EditPage = ({
     const renderForm = () => (
         <Form
             name={name}
-            labelAlign='left'
-            labelCol={{ span: 6, offset: 1 }}
-            wrapperCol={{ span: 19 }}
             initialValues={pageData.value}
             onFinish={onFinish}
             scrollToFirstError
@@ -70,30 +68,13 @@ const EditPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    rules={[{
-                        required: f.required,
-                        message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'New Password'}!`
-                    },
-                    {
-                        validator: async (rule, value) => {
-                            if (f.name === 'newPassword') {
-                                if (value.length < 8) {
-                                    return Promise.reject(new Error('Password must be at least 8 characters long.'));
-                                }
-                            }
-                            if (f.name === 'confirmPassword') {
-                                const newPassword = f.input.props.newpassref.current.props.value;
-                                if (value !== newPassword) {
-                                    console.log('value: ', value, 'newPassword: ', newPassword);
-                                    return Promise.reject(new Error('Passwords do not match.'));
-                                }
-                            }
-                            return Promise.resolve();
-                        }
-                    },
+                    rules={[
+                        {
+                            required: f.required,
+                            message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'New Password'}!`
+                        },
+                        ...(f.rules ? f.rules : [])
                     ]}
-                    // validateStatus={f.name === 'currentPassword' && submitError ? 'error' : null}
-                    help={f.name === 'currentPassword' && submitError ? submitError : null}
                     valuePropName={f.name === 'isAdmin' ? "checked" : "value"}
                 >
                     {f.input}
@@ -116,6 +97,7 @@ const EditPage = ({
 
     return (
         <div className='edit-page'>
+            {submitError && <ErrorAlert message={submitError} />}
             <PageHeader
                 name={name}
                 action='edit'
@@ -139,13 +121,11 @@ EditPage.propTypes = {
     getData: func.isRequired,
     onEdit: func.isRequired,
     showBackButton: bool,
-    isProfilePage: bool,
 };
 
 EditPage.defaultProps = {
     icon: null,
     showBackButton: true,
-    isProfilePage: false,
 };
 
 export default EditPage;

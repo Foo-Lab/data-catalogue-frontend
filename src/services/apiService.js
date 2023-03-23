@@ -1,10 +1,7 @@
 import axios from '../modules/axios';
 
 const handleResponse = (response) => {
-    if (response === undefined) {
-        const error = 'Response is undefined. Backend may be down';
-        return Promise.reject(error);
-    }
+    if (response === undefined) return Promise.reject(new Error('Response is undefined. Backend may be down'))
     if (response.status !== 200) {
         if (response.status === 401) {
             // logout();
@@ -89,7 +86,7 @@ const getAll = (name, page, size, sort, dir) => {
  * i.e. 'experiment'
  * @returns Will return an array of rows if successful, and Rejected Promise otherwise.
  */
-const getAllWhere = (name, page, size, sort, dir, {route, id}) => {
+const getAllWhere = (name, page, size, sort, dir, { route, id }) => {
     let params = {};
     if (page && size) {
         params = {
@@ -128,6 +125,22 @@ const remove = (name, id) => {
         method: 'DELETE'
     };
     return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
+};
+
+export const checkUsernameExists = (username) => {
+    const requestOptions = {
+        method: 'GET',
+    };
+    console.log(username);
+    return axios(`/user/username/${username}`, requestOptions).then(handleResponse);
+};
+
+export const checkEmailExists = (email) => {
+    const requestOptions = {
+        method: 'GET',
+    };
+    console.log(email);
+    return axios(`/user/email/${email}`, requestOptions).then(handleResponse);
 };
 
 export default {
