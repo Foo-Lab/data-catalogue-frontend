@@ -37,7 +37,7 @@ const ListTable = ({
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [data, dataDispatch] = useDataReducer();
+    const [pageData, dispatchPageData] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
     const [itemToDelete, setItemToDelete] = useState(null);
@@ -70,12 +70,12 @@ const ListTable = ({
                 });
 
             setLoading(false);
-            dataDispatch({ type: "SET_DATA", value: result });
+            dispatchPageData({ type: "SET_DATA", value: result });
         };
 
         fetchData().catch(error => {
             console.error(error);
-            dataDispatch({ type: "ERROR", value: error });
+            dispatchPageData({ type: "ERROR", value: error });
         });
     }, [pageNum, pageSize, sortBy, sortDir, referenceId]);
 
@@ -118,7 +118,7 @@ const ListTable = ({
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
         // setData(d => d.filter(e => e.id !== item.id));
-        dataDispatch({ type: "DELETE_RECORD", value: item.id });
+        dispatchPageData({ type: "DELETE_RECORD", value: item.id });
     }
     const renderListActions = (id, record) => (
         <div className='list-actions'>
@@ -161,7 +161,7 @@ const ListTable = ({
     );
     return (
         <div>
-            {data.ok ?
+            {pageData.ok ?
                 <div>
                     <Table
                         columns={
@@ -177,7 +177,7 @@ const ListTable = ({
                                 ]
                                 : columns
                         }
-                        dataSource={data.value}
+                        dataSource={pageData.value}
                         rowKey='id'
                         onChange={onChange}
                         onRow={(record) => ({
@@ -202,7 +202,7 @@ const ListTable = ({
                         />
                     }
                 </div>
-                : <Empty description={<span>{data.errorMessage}</span>} />
+                : <Empty description={<span>{pageData.errorMessage}</span>} />
             }
         </div>
     )

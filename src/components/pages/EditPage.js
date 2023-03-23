@@ -19,11 +19,10 @@ const EditPage = ({
     showBackButton,
     isProfilePage
 }) => {
-    console.log(`Different edit page for profile: ${isProfilePage}`);
     const navigate = useNavigate();
     const { id } = useParams();
     const [submitError, setSubmitError] = useState(null);
-    const [data, dataDispatch] = useDataReducer();
+    const [pageData, dispatchPageData] = useDataReducer();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,12 +33,12 @@ const EditPage = ({
                     result[key] = formatDate(field, false);
                 }
             });
-            dataDispatch({ type: "SET_DATA", value: result });
+            dispatchPageData({ type: "SET_DATA", value: result });
         };
 
         fetchData().catch(error => {
             console.error(error);
-            dataDispatch({ type: "ERROR", value: error });
+            dispatchPageData({ type: "ERROR", value: error });
         });
     }, [id]);
 
@@ -62,7 +61,7 @@ const EditPage = ({
             labelAlign='left'
             labelCol={{ span: 6, offset: 1 }}
             wrapperCol={{ span: 19 }}
-            initialValues={data.value}
+            initialValues={pageData.value}
             onFinish={onFinish}
             scrollToFirstError
         >
@@ -124,9 +123,9 @@ const EditPage = ({
                 showBackButton={showBackButton}
             />
             <div className='page-content'>
-                {data.ok
+                {pageData.ok
                     ? renderForm()
-                    : <p>{`${data.errorMessage}`}</p>
+                    : <p>{`${pageData.errorMessage}`}</p>
                 }
             </div>
         </div>

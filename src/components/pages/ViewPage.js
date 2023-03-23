@@ -41,7 +41,7 @@ const ViewPage = ({
 }) => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [data, dataDispatch] = useDataReducer();
+    const [pageData, dispatchPageData] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
     // const pageNum = useSelector(state => state.listPage.pageNum);
@@ -64,12 +64,12 @@ const ViewPage = ({
                 }
             });
             console.log('THE RESULT', result);
-            dataDispatch({ type: "SET_DATA", value: result });
+            dispatchPageData({ type: "SET_DATA", value: result });
         };
 
         fetchData().catch(error => {
             console.error(error);
-            dataDispatch({ type: "ERROR", value: error });
+            dispatchPageData({ type: "ERROR", value: error });
         });
     }, [id]);
 
@@ -125,7 +125,7 @@ const ViewPage = ({
             </PageHeader>
 
             <div className='page-content'>
-                {data.ok
+                {pageData.ok
                     ? <div>
                         <Descriptions
                             // column={2}
@@ -147,8 +147,8 @@ const ViewPage = ({
                                     >
                                         {
                                             Array.isArray(each.key) // check if 'key' of a data descriptor is an array. e.g. key: ['User', 'name']
-                                                ? getNestedObject(data.value, each.key) // descriptor info is in a nested object
-                                                : data.value[each.key] // descriptor can be easily accessed
+                                                ? getNestedObject(pageData.value, each.key) // descriptor info is in a nested object
+                                                : pageData.value[each.key] // descriptor can be easily accessed
                                         }
                                     </Item>
                                 ))
@@ -171,14 +171,14 @@ const ViewPage = ({
                             </>
                         }
                     </div>
-                    : <Empty description={<span>{data.errorMessage}</span>} />
+                    : <Empty description={<span>{pageData.errorMessage}</span>} />
                 }
-                {data.value?.name &&
+                {pageData.value?.name &&
                     <DeleteModal
-                        name={data.value.name}
+                        name={pageData.value.name}
                         isOpen={isModalOpen}
                         toggleItemToDelete={setModalOpen}
-                        onDelete={() => onDeleteItem(data.value)}
+                        onDelete={() => onDeleteItem(pageData.value)}
                     />
                 }
             </div>
