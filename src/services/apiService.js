@@ -127,22 +127,6 @@ const remove = (name, id) => {
     return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
 };
 
-export const checkUsernameExists = (username) => {
-    const requestOptions = {
-        method: 'GET',
-    };
-    console.log(username);
-    return axios(`/user/username/${username}`, requestOptions).then(handleResponse);
-};
-
-export const checkEmailExists = (email) => {
-    const requestOptions = {
-        method: 'GET',
-    };
-    console.log(email);
-    return axios(`/user/email/${email}`, requestOptions).then(handleResponse);
-};
-
 export default {
     create,
     getAll,

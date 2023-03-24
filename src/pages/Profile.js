@@ -1,15 +1,16 @@
 import React, { useRef } from 'react';
 import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { Input, Button, Checkbox } from 'antd';
-import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
+import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
-
-import apiService, { checkUsernameExists, checkEmailExists } from '../services/apiService';
 import ListPage from '../components/pages/ListPage';
-import { compareStrings } from '../utilities';
 import AddPage from '../components/pages/AddPage';
+
+import apiService from '../services/apiService';
+import { checkUsernameExists, checkEmailExists } from '../services/authService';
+import { compareStrings } from '../utilities';
 
 const PAGE_NAME = 'user';
 
@@ -41,6 +42,8 @@ const Profile = () => {
         {
             title: 'Admin',
             dataIndex: 'isAdmin',
+            width: '10%',
+            render: (isAdmin) => (isAdmin ? <CheckOutlined /> : <CloseOutlined />)
         },
         {
             title: 'Email',
