@@ -79,7 +79,7 @@ const Configs = ({ name }) => {
                         onAdd={addItem}
                     />}
                 />
-                <Route path="edit/:id" element={
+                <Route path=":id/edit" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
