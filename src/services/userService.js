@@ -16,7 +16,7 @@ const login = (data) => {
         headers: { 'Content-Type': 'application/json' },
         data,
     };
-    return axios('/user/login', requestOptions).then(handleResponse);
+    return axios('/user/auth', requestOptions).then(handleResponse);
 }
 
 const logout = () => {
