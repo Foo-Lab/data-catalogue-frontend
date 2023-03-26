@@ -17,10 +17,9 @@ const PageHeader = ({
     const navigate = useNavigate();
     const location = useLocation();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
+    // console.log('pageheader', location.pathname, 'state:', location.state)
 
     useEffect(() => {
-        console.log('location', location)
-        console.log('pathname', location.pathname)
         const paths = (location.pathname)
             .split('/')
             .filter((p) => p && !Number(p))
@@ -43,7 +42,7 @@ const PageHeader = ({
         return (
             last
                 ? <span>{route.breadcrumbName}</span>
-                : <Link to={`/${paths.join('/')}`}>{route.breadcrumbName}</Link>
+                : <Link to={`/${paths.join('/')}`} state={{ from: location.pathname }}>{route.breadcrumbName}</Link>
         );
     };
 

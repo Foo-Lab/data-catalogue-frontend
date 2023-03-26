@@ -1,47 +1,32 @@
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { Route, Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { func, object, string } from 'prop-types';
+import { useLocation, Navigate, Outlet } from 'react-router-dom';
+import { bool } from 'prop-types';
+import { useAuth } from '../hooks';
 // import { authenticationService } from '@/_services';
 // TODO use <Outlet/> 
 
-const PrivateRoute = ({ component: Component, roles, ...rest }) => {
-    const currentUser = useSelector(state => (state.user));
-    console.log('currentUser', currentUser);
-
-    return (
-        <Outlet>
-            <Route {...rest} render={props => {
-                if (!currentUser) {
-                    console.log('redirecting...');
-                    // not logged in so redirect to login page with the return url
-                    return <Navigate to={{ pathname: '/login', state: { from: props.location } }} />
-                }
-
-                // check if route is restricted by role
-                if (roles && roles.indexOf(currentUser.role) === -1) {
-                    // role not authorised so redirect to home page
-                    return <Navigate to={{ pathname: '/' }} />
-                }
-
-                console.log('success!');
-                return <Component {...props} />
-            }} />
-        </Outlet>
-    )
+const PrivateRoute = ({ adminOnly }) => {
+    const auth = useAuth();
+    const location = useLocation();
+    // const from = location.state?.from || location.pathname;
+    // console.log(location)
+    if (!auth?.name) {
+        // console.log(auth)
+        // console.log(from)
+        return <Navigate to='/login' state={{ from: location }} replace />
+    }
+    return (!adminOnly || auth.isAdmin)
+        ? <Outlet />
+        : <Navigate to='/unauthorized' state={{ from: location }} replace /> // route is adminOnly, but !user.isAdmin
 };
 
 PrivateRoute.propTypes = {
-    component: func,
-    roles: string,
-    location: object
+    adminOnly: bool,
 }
 
 PrivateRoute.defaultProps = {
-    component: null,
-    roles: null,
-    location: null
+    adminOnly: false,
 }
 
 export default PrivateRoute;

@@ -8,27 +8,29 @@ import Profile from '../Profile';
 import Login from '../Login';
 
 import constants from '../../constants';
+import PrivateRoute from '../../components/PrivateRoute';
 
 // TODO check if AccessToken exists and is valid
 // TODO wrap all routes except login with PrivateRoute
-const auth = { 'token': false }; 
 
-const AppContent = () => (
+const AppContent = () =>
     <Routes>
-        <Route path='/experiments/*' element={<Experiments />} />
-        <Route path='/samples/*' element={<Samples />} />
+        <Route element={<PrivateRoute />}>
+            <Route path='/experiments/*' element={<Experiments />} />
+            <Route path='/samples/*' element={<Samples />} />
 
-        <Route path='/fileTypes/*' element={<Config name={constants.CONFIG_FILE_TYPE} key='fileTypes' />} />
-        <Route path='/organisms/*' element={<Config name={constants.CONFIG_ORGANISM} key='organisms' />} />
-        <Route path='/sequencers/*' element={<Config name={constants.CONFIG_SEQUENCER} key='sequencers' />} />
-        <Route path='/sequencingProviders/*' element={<Config name={constants.CONFIG_SEQUENCING_PROVIDER} key='sequencingProviders' />} />
-        <Route path='/sequencingTypes/*' element={<Config name={constants.CONFIG_SEQUENCING_TYPE} key='sequencingTypes' />} />
-        <Route path='/statuses/*' element={<Config name={constants.CONFIG_STATUS} key='statuses' />} />
+            <Route path='/fileTypes/*' element={<Config name={constants.CONFIG_FILE_TYPE} key='fileTypes' />} />
+            <Route path='/organisms/*' element={<Config name={constants.CONFIG_ORGANISM} key='organisms' />} />
+            <Route path='/sequencers/*' element={<Config name={constants.CONFIG_SEQUENCER} key='sequencers' />} />
+            <Route path='/sequencingProviders/*' element={<Config name={constants.CONFIG_SEQUENCING_PROVIDER} key='sequencingProviders' />} />
+            <Route path='/sequencingTypes/*' element={<Config name={constants.CONFIG_SEQUENCING_TYPE} key='sequencingTypes' />} />
+            <Route path='/statuses/*' element={<Config name={constants.CONFIG_STATUS} key='statuses' />} />
 
-        <Route path='/profile/*' element={<Profile />} />
+            <Route path='/profile/*' element={<Profile />} />
+        </Route>
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Navigate to={auth.token ? "/experiments" : "/login"} replace />} />
+        <Route path='/' element={<Navigate to='/experiments' replace />} />
     </Routes>
-);
+
 
 export default AppContent;

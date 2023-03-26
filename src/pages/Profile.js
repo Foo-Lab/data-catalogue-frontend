@@ -9,17 +9,19 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 
 import apiService from '../services/apiService';
-import { checkUsernameExists, checkEmailExists } from '../services/authService';
+import { matchExistingUsername, matchExistingEmail } from '../services/authService';
 import { compareStrings } from '../utilities';
+import { useAuth } from '../hooks';
 
 const PAGE_NAME = 'user';
 
 const Profile = () => {
     const pageProps = useRef({
-        name: 'Profile',
+        name: 'profile',
         icon: <UserOutlined />,
     });
     const newPasswordRef = useRef();
+    const auth = useAuth();
 
     // list
     const tableColumns = [
@@ -190,18 +192,18 @@ const Profile = () => {
     const getItem = (id) => apiService.getById('user', id);
 
     const addItem = async (record) => {
-        const usernameExists = await checkUsernameExists(record.username).catch(() => { })
-        const emailExists = await checkEmailExists(record.email).catch(() => { });
-        if (usernameExists) { throw new Error('Username Exists') };
-        if (emailExists) { throw new Error('Email Exists') };
+        const usernameFound = await matchExistingUsername(record.username).catch(() => { });
+        const emailFound = await matchExistingEmail(record.email).catch(() => { });
+        if (usernameFound) { throw new Error('Username already exists.') };
+        if (emailFound) { throw new Error('Email already exists.') };
         return apiService.create(PAGE_NAME, { ...record, password: 'password' });
     }
 
     const updateItem = async (id, record) => {
-        const usernameExists = await checkUsernameExists(record.username).catch(() => { })
-        const emailExists = await checkEmailExists(record.email).catch(() => { });
-        if (usernameExists && await id !== String(usernameExists?.result.id)) { throw new Error('Username Exists') };
-        if (emailExists && await id !== String(emailExists?.result.id)) { throw new Error('Email Exists') };
+        const usernameFound = await matchExistingUsername(record.username).catch(() => { });
+        const emailFound = await matchExistingEmail(record.email).catch(() => { });
+        if (usernameFound && await id !== String(usernameFound?.result.id)) { throw new Error('Username already exists.') };
+        if (emailFound && await id !== String(emailFound?.result.id)) { throw new Error('Email already exists.') };
         return apiService.update('user', id, record);
     }
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
@@ -210,8 +212,8 @@ const Profile = () => {
         <div className='profile-page'>
             <Routes>
                 <Route path="/" element={
-                    false // TODO change to a check if the user is not an admin
-                        ? <Navigate to="me" replace />
+                    !auth?.isAdmin // TODO change to a check if the user is not an admin
+                        ? <Navigate to={`${auth.userId}`} replace />
                         : (
                             <ListPage
                                 {...pageProps.current}

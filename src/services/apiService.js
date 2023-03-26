@@ -8,6 +8,11 @@ const handleResponse = (response) => {
             // location.reload(true);
             console.warn('401 not authorized');
         };
+        if (response.status === 422) {
+            // logout();
+            // location.reload(true);
+            console.warn('422 Forbidden');
+        };
 
         const error = (response.data && response.data.message) || response.statusText;
         return Promise.reject(error);
@@ -36,7 +41,10 @@ const handleResponse = (response) => {
 const create = (name, data) => {
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': getToken(),
+        },
         data,
     };
     return axios(`/${name}`, requestOptions).then(handleResponse);

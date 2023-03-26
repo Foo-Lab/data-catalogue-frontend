@@ -42,7 +42,7 @@ const ListPage = ({
             >
                 {showAddButton &&
                     <Link to='add'>
-                        <Tooltip title='Add'>
+                        <Tooltip title={`Add ${name}`}>
                             <Button
                                 type='primary'
                                 shape='circle'
@@ -54,7 +54,7 @@ const ListPage = ({
             </PageHeader>
 
             <div className='page-content' ref={pageContent}>
-                <ListTable 
+                <ListTable
                     columns={columns}
                     getData={getData}
                     onDelete={onDelete}

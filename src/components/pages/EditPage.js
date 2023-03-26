@@ -49,8 +49,9 @@ const EditPage = ({
             await onEdit(id, values);
             navigate(-1);
         } catch (error) {
-            console.error(error);
-            setSubmitError(error.message);
+            // console.log('e', error)
+            const errorMessage = error.message ? error.message : error;
+            setSubmitError(errorMessage);
         }
     }
 
@@ -97,7 +98,7 @@ const EditPage = ({
 
     return (
         <div className='edit-page'>
-            {submitError && <ErrorAlert message={submitError} />}
+            {(submitError?.message !== undefined || submitError) && <ErrorAlert message={submitError} />}
             <PageHeader
                 name={name}
                 action='edit'

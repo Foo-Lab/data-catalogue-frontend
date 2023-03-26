@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Routes, Route } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
-import { ExperimentOutlined } from '@ant-design/icons';
+import { DotChartOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { plural } from 'pluralize';
 
@@ -23,7 +23,7 @@ const Experiments = () => {
     const pageProps = useRef({
         name: plural(PAGE_NAME),
         referencedBy: { name: 'Samples', url: 'samples' },
-        icon: <ExperimentOutlined />,
+        icon: <DotChartOutlined />,
     });
 
     const [users, setUsers] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, instanceOf, bool, func } from 'prop-types';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Table, Tooltip, Button, Empty } from 'antd';
 import {
     EyeOutlined,
@@ -36,6 +36,7 @@ const ListTable = ({
 }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [pageData, dispatchPageData] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
@@ -109,7 +110,7 @@ const ListTable = ({
 
     const prefix = referenceUrl !== null ? `../../${referenceUrl}/` : '';
 
-    const onClickRow = (record) => allowClickRow && navigate(`${prefix}${record.id}`)
+    const onClickRow = (record) => allowClickRow && navigate(`${prefix}${record.id}`, { state: location.pathname })
 
     const onClickAction = (event) => {
         event.stopPropagation();

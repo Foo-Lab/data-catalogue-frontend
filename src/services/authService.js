@@ -6,15 +6,17 @@ const handleResponse = (response) => {
         if (response.status === 401) {
             console.warn('401 not authorized');
         };
-
         const error = (response.data && response.data.message) || response.statusText;
         return Promise.reject(error);
-    }
-
+    };
+    // const error = (response.data && response.data.message) || response.statusText;
+    console.warn('record found');
     return { result: response.data };
 };
 
-export const checkUsernameExists = (username) => {
+console.log('hello')
+
+export const matchExistingUsername = (username) => {
     const requestOptions = {
         method: 'GET',
     };
@@ -22,7 +24,7 @@ export const checkUsernameExists = (username) => {
     return axios(`/user/username/${username}`, requestOptions).then(handleResponse);
 };
 
-export const checkEmailExists = (email) => {
+export const matchExistingEmail = (email) => {
     const requestOptions = {
         method: 'GET',
     };
