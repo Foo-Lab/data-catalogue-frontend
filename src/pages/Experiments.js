@@ -10,6 +10,8 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
+import TitledDivider from '../components/TitledDivider';
+import ListTable from '../components/pages/ListTable';
 import AddEditSelect from '../components/AddEditSelect';
 
 import { clearPageState } from '../store/listPageSlice';
@@ -204,11 +206,17 @@ const Experiments = () => {
                         dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
-                        getByFk={getByExpt}
-                        deleteByFk={deleteSampleItem}
-                        allowClickRow
-                        allowView
-                        listColumns={sampleCols}
+                        referenceListPage={<>
+                            <TitledDivider title={`${pageProps.current.referencedBy.name} associated with this ${pageProps.current.name.slice(0, -1)}`} />
+                            <ListTable
+                                referenceUrl={pageProps.current.referencedBy.url}
+                                columns={sampleCols}
+                                getData={getByExpt}
+                                onDelete={deleteSampleItem}
+                                allowClickRow
+                                allowView
+                            />
+                        </>}
                     />}
                 />
                 <Route path=":id/edit" element={

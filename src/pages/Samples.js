@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Routes, Route } from 'react-router-dom';
 import { Input, DatePicker } from 'antd';
-import { ExperimentOutlined } from '@ant-design/icons';
+import { ExperimentOutlined, FileOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { plural } from 'pluralize';
 
@@ -10,6 +10,8 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
+import ListTable from '../components/pages/ListTable';
+import TitledDivider from '../components/TitledDivider';
 import AddEditSelect from '../components/AddEditSelect';
 
 import { clearPageState } from '../store/listPageSlice';
@@ -294,7 +296,9 @@ const Samples = () => {
 
     const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
-    const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
+    const deleteItem = (id) => apiService.remove(PAGE_NAME, id);
+
+    // const addSampleFile = (record) => apiService.create(PAGE_NAME, record);
 
     const deleteSampleFile = (id) => apiService.remove('sampleFile', id)
 
@@ -316,6 +320,14 @@ const Samples = () => {
                         onAdd={addItem}
                     />}
                 />
+                <Route path="/:id/new" element={
+                    <AddPage
+                        name='Sample File'
+                        icon={<FileOutlined />}
+                        fields={formFields}
+                        onAdd={addItem}
+                    />}
+                />
                 <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
@@ -325,7 +337,18 @@ const Samples = () => {
                         getByFk={getBySample}
                         deleteByFk={deleteSampleFile}
                         listColumns={sampleFileCols}
-                    />}
+                        referenceListPage={<>
+                            <TitledDivider title={`${pageProps.current.referencedBy.name} associated with this ${pageProps.current.name.slice(0, -1)}`} />
+                            <ListTable
+                                referenceUrl={pageProps.current.referencedBy.url}
+                                columns={sampleFileCols}
+                                getData={getBySample}
+                                onDelete={deleteSampleFile}
+                                allowClickRow={false}
+                            />
+                        </>}
+                    />
+                }
                 />
                 <Route path=":id/edit" element={
                     <EditPage

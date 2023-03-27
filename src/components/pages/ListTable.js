@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { string, instanceOf, bool, func } from 'prop-types';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, useParams } from 'react-router-dom';
 import { Table, Tooltip, Button, Empty } from 'antd';
 import {
     EyeOutlined,
@@ -27,7 +27,7 @@ const ListTable = ({
     columns,
     getData,
     onDelete,
-    referenceId,
+    // referenceId,
     referenceUrl,
     showViewButton,
     showEditButton,
@@ -37,6 +37,8 @@ const ListTable = ({
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+    const { id: referenceId } = useParams();
+    // console.log(referenceId)
 
     const [pageData, dispatchPageData] = useDataReducer();
     const [isLoading, setLoading] = useState(false);
@@ -78,7 +80,7 @@ const ListTable = ({
             console.error(error);
             dispatchPageData({ type: "ERROR", value: error });
         });
-    }, [pageNum, pageSize, sortBy, sortDir, referenceId]);
+    }, [pageNum, pageSize, sortBy, sortDir]);
 
     const onChange = (pagination, filters, sorter, extra) => {
         const { action } = extra;
@@ -213,7 +215,7 @@ ListTable.propTypes = {
     columns: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
-    referenceId: string,
+    // referenceId: string,
     referenceUrl: string,
     showViewButton: bool,
     showEditButton: bool,
@@ -223,7 +225,7 @@ ListTable.propTypes = {
 
 ListTable.defaultProps = {
     onDelete: null,
-    referenceId: null,
+    // referenceId: null,
     referenceUrl: null,
     showViewButton: true,
     showEditButton: true,

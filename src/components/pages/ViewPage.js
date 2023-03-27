@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { shape, string, element, instanceOf, func, bool } from 'prop-types';
+import { string, element, instanceOf, func, bool, node } from 'prop-types';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Descriptions, Tooltip, Button, Empty, Divider, Typography } from 'antd';
+import { Descriptions, Tooltip, Button, Empty } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-// import { useSelector } from 'react-redux';
 
 import PageHeader from '../PageHeader';
 import DeleteModal from '../DeleteModal';
-import ListTable from './ListTable';
 
 import {
     checkIsDate,
@@ -20,7 +18,6 @@ import { useDataReducer } from '../../hooks';
 
 import './ViewPage.scss';
 
-const { Text } = Typography;
 const { Item } = Descriptions;
 
 const ViewPage = ({
@@ -28,33 +25,20 @@ const ViewPage = ({
     icon,
     dataDescriptors,
     getData,
-    getByFk,
-    deleteByFk,
-    referencedBy,
-    allowClickRow,
-    allowView,
-    listColumns,
     onDelete,
     showEditButton,
     showDeleteButton,
     showBackButton,
+    referenceListPage,
 }) => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [pageData, dispatchPageData] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
-    // const pageNum = useSelector(state => state.listPage.pageNum);
-    // const pageSize = useSelector(state => state.listPage.pageSize);
-    // const sortBy = useSelector(state => state.listPage.sortBy);
-    // const sortDir = useSelector(state => state.listPage.sortDir);
-
     useEffect(() => {
         const fetchData = async () => {
             const { result } = await getData(id);
-            // const matchingRecords = getByFk ? await getByFk(pageNum, pageSize, sortBy, sortDir, id) : {};
-            // console.log('matching: ', matchingRecords);
-            // Object.assign(result, { [referencedBy]: matchingRecords.result });
             Object.keys(result).forEach(key => {
                 const field = result[key];
                 if (checkIsDate(field)) {
@@ -154,22 +138,7 @@ const ViewPage = ({
                                 ))
                             }
                         </Descriptions>
-                        {referencedBy !== null &&
-                            <>
-                                <Divider><Text strong>{referencedBy.name} associated with this {name.slice(0, -1)}</Text></Divider>
-                                <ListTable
-                                    referenceUrl={referencedBy.url}
-                                    columns={listColumns}
-                                    getData={getByFk}
-                                    onDelete={deleteByFk}
-                                    referenceId={id}
-                                    showViewButton={allowView}
-                                    showEditButton={allowView}
-                                    showDeleteButton={allowView}
-                                    allowClickRow={allowClickRow}
-                                />
-                            </>
-                        }
+                        {referenceListPage}
                     </div>
                     : <Empty description={<span>{pageData.errorMessage}</span>} />
                 }
@@ -191,34 +160,20 @@ ViewPage.propTypes = {
     icon: element,
     dataDescriptors: instanceOf(Array).isRequired,
     getData: func.isRequired,
-    getByFk: func,
-    deleteByFk: func,
-    referencedBy:
-        shape({
-            url: string,
-            name: string.isRequired,
-        }),
-    allowClickRow: bool,
-    allowView: bool,
-    listColumns: instanceOf(Array),
     onDelete: func,
     showEditButton: bool,
     showDeleteButton: bool,
     showBackButton: bool,
+    referenceListPage: node,
 };
 
 ViewPage.defaultProps = {
     icon: null,
     onDelete: null,
-    getByFk: null,
-    deleteByFk: null,
-    referencedBy: null,
-    allowClickRow: false,
-    allowView: false,
-    listColumns: null,
     showEditButton: true,
     showDeleteButton: true,
     showBackButton: true,
+    referenceListPage: null,
 };
 
 export default ViewPage;
