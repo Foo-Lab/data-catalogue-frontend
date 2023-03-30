@@ -59,7 +59,7 @@ const ViewPage = ({
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
-        navigate(-1);
+        navigate(-1, { relative: 'route' });
     }
 
     // const copyClipboard = async () => { };

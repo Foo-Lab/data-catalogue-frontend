@@ -13,6 +13,7 @@ const PageHeader = ({
     icon,
     showBackButton,
     children,
+    showBreadCrumbs,
 }) => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -65,13 +66,15 @@ const PageHeader = ({
             }
             onBack={
                 showBackButton
-                    ? () => navigate(-1)
+                    ? () => navigate(-1, { relative: 'route' })
                     : null
             }
-            breadcrumb={{
-                routes: breadcrumbs,
-                itemRender: renderBreadcrumb,
-            }}
+            breadcrumb={
+                (showBreadCrumbs) &&
+                {
+                    routes: breadcrumbs,
+                    itemRender: renderBreadcrumb,
+                }}
             extra={children}
         />
     );
@@ -83,6 +86,7 @@ PageHeader.propTypes = {
     icon: element,
     showBackButton: bool,
     children: element,
+    showBreadCrumbs: bool,
 };
 
 PageHeader.defaultProps = {
@@ -90,6 +94,7 @@ PageHeader.defaultProps = {
     icon: null,
     showBackButton: true,
     children: null,
+    showBreadCrumbs: true,
 };
 
 export default PageHeader;

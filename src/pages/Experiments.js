@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Routes, Route } from 'react-router-dom';
-import { Input, DatePicker } from 'antd';
-import { DotChartOutlined } from '@ant-design/icons';
+import { Routes, Route, Link } from 'react-router-dom';
+import { Input, DatePicker, Tooltip, Button } from 'antd';
+import { DotChartOutlined, ExperimentOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { plural } from 'pluralize';
 
@@ -10,21 +10,23 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
-import TitledDivider from '../components/TitledDivider';
 import ListTable from '../components/pages/ListTable';
 import AddEditSelect from '../components/AddEditSelect';
 
 import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { compareStrings } from '../utilities';
+import PageHeader from '../components/PageHeader';
+import { useAuth } from '../hooks';
 
 const PAGE_NAME = 'experiment';
 
 const Experiments = () => {
     const dispatch = useDispatch();
+    const auth = useAuth();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
-        referencedBy: { name: 'Samples', url: 'samples' },
+        referencedBy: { name: 'Sample', url: 'samples' },
         icon: <DotChartOutlined />,
     });
 
@@ -141,12 +143,14 @@ const Experiments = () => {
             name: 'userId',
             required: true,
             input: AddEditSelect({ options: users, field: 'user' }),
+            initialValue: auth.userId,
         },
         {
             label: 'Date',
             name: 'date',
             required: true,
             input: <DatePicker showToday format='DD/MM/YYYY' />,
+            initialValue: moment(new Date().getDate(), 'DD/MM/YYYY')
         },
         {
             label: 'Seq ID',
@@ -180,6 +184,8 @@ const Experiments = () => {
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 
+    // const addSample = (record, exptId) => apiService.create('sampleFile', { sampleId, ...record });
+
     const deleteSampleItem = (id) => apiService.remove('sample', id)
 
     return (
@@ -207,7 +213,18 @@ const Experiments = () => {
                         getData={getItem}
                         onDelete={deleteItem}
                         referenceListPage={<>
-                            <TitledDivider title={`${pageProps.current.referencedBy.name} associated with this ${pageProps.current.name.slice(0, -1)}`} />
+                            <PageHeader
+                                action={`Related ${plural(pageProps.current.referencedBy.name)}`}
+                                icon={<ExperimentOutlined />}
+                                showBackButton={false}
+                                showBreadCrumbs={false}
+                            >
+                                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
+                                    <Link to='../../samples/add'>
+                                        <Button type='primary' shape='circle' icon={<ExperimentOutlined />} />
+                                    </Link>
+                                </Tooltip>
+                            </PageHeader>
                             <ListTable
                                 referenceUrl={pageProps.current.referencedBy.url}
                                 columns={sampleCols}

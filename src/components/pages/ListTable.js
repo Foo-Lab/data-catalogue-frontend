@@ -17,7 +17,7 @@ import {
     formatDate,
     formatDateTime,
 } from '../../utilities';
-import { useDataReducer } from '../../hooks';
+import { useAuth, useDataReducer } from '../../hooks';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListTable.scss';
@@ -44,6 +44,8 @@ const ListTable = ({
     const [isLoading, setLoading] = useState(false);
     const [totalRecords, setTotalRecords] = useState(null);
     const [itemToDelete, setItemToDelete] = useState(null);
+
+    const { userId, isAdmin } = useAuth();
 
     const pageNum = useSelector(state => state.listPage.pageNum);
     const pageSize = useSelector(state => state.listPage.pageSize);
@@ -136,7 +138,7 @@ const ListTable = ({
                     </Tooltip>
                 </Link>
             }
-            {showEditButton &&
+            {(showEditButton && (record.userId === userId || isAdmin)) &&
                 <Link
                     to={`${prefix}${id}/edit`}
                     relative='path'
@@ -147,7 +149,7 @@ const ListTable = ({
                     </Tooltip>
                 </Link>
             }
-            {showDeleteButton &&
+            {(showDeleteButton && (record.userId === userId || isAdmin)) &&
                 <Button
                     type='link'
                     onClick={(event) => {

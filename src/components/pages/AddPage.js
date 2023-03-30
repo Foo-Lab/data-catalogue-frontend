@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
@@ -15,21 +15,23 @@ const AddPage = ({
     onAdd,
     showBackButton,
 }) => {
+    const { id } = useParams(); // only present for adding SampleFiles
     const navigate = useNavigate();
     const [submitError, setSubmitError] = useState(null);
     const onFinish = async (values) => {
         setSubmitError(null);
         try {
-            await onAdd(values);
-            navigate(-1);
+            // console.log('values', values)
+            await onAdd(values, id);
+            navigate(-1, { relative: 'route' });
         } catch (error) {
-            console.error(error);
-            console.log('error', error)
+            // console.error(error);
+            // console.log('error', error)
             setSubmitError(error.message);
         }
     }
 
-    const onCancel = () => navigate(-1);
+    const onCancel = () => navigate(-1, { relative: 'route' });
 
     const renderForm = () => (
         <Form
@@ -42,6 +44,7 @@ const AddPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
+                    initialValue={f.initialValue}
                     rules={[
                         {
                             required: f.required,

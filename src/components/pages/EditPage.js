@@ -45,9 +45,9 @@ const EditPage = ({
     const onFinish = async (values) => {
         setSubmitError(null);
         try {
-            console.log(values);
+            // console.log(values);
             await onEdit(id, values);
-            navigate(-1);
+            navigate(-1, { relative: 'route' });
         } catch (error) {
             // console.log('e', error)
             const errorMessage = error.message ? error.message : error;
@@ -55,7 +55,7 @@ const EditPage = ({
         }
     }
 
-    const onCancel = () => navigate(-1);
+    const onCancel = () => navigate(-1, { relative: 'route' });
 
     const renderForm = () => (
         <Form
