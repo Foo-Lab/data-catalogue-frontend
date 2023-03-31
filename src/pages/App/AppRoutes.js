@@ -13,7 +13,7 @@ import PrivateRoute from '../../components/PrivateRoute';
 // TODO check if AccessToken exists and is valid
 // TODO wrap all routes except login with PrivateRoute
 
-const AppContent = () =>
+const AppRoutes = () =>
     <Routes>
         <Route element={<PrivateRoute />}>
             <Route path='/experiments/*' element={<Experiments />} />
@@ -33,4 +33,4 @@ const AppContent = () =>
     </Routes>
 
 
-export default AppContent;
+export default AppRoutes;

@@ -4,7 +4,7 @@ import { Layout, Image, Typography, Button } from 'antd';
 import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 
 import AppMenu from './AppMenu';
-import AppContent from './AppContent';
+import AppRoutes from './AppRoutes';
 
 import labLogo from '../../assets/lab_logo.png';
 
@@ -66,7 +66,7 @@ const AppLayout = () => {
                     }
                 </Header>
                 <Content className={`app-content ${siderCollapsed ? '' : 'app-content-sider-opened'}`}>
-                    <AppContent />
+                    <AppRoutes />
                 </Content>
             </Layout>
         </Layout>
