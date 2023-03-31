@@ -12,6 +12,7 @@ import apiService from '../services/apiService';
 import { matchExistingUsername, matchExistingEmail } from '../services/authService';
 import { compareStrings } from '../utilities';
 import { useAuth } from '../hooks';
+import PrivateRoute from '../components/PrivateRoute';
 
 const PAGE_NAME = 'user';
 
@@ -223,21 +224,15 @@ const Profile = () => {
                             />
                         )}
                 />
-                <Route path='me' element={
-                    <div>
-                        <p>Own profile should be displayed here</p>
-                        <Link to='..' relative='path'>
-                            <Button>Show all profiles</Button>
-                        </Link>
-                    </div>}
-                />
-                <Route path="add" element={
-                    <AddPage
-                        {...pageProps.current}
-                        fields={addNewFields}
-                        onAdd={addItem}
-                    />}
-                />
+                <Route element={<PrivateRoute adminOnly />}>
+                    <Route path="add" element={
+                        <AddPage
+                            {...pageProps.current}
+                            fields={addNewFields}
+                            onAdd={addItem}
+                        />}
+                    />
+                </Route>
                 <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
