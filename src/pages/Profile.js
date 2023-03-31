@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
-import { Input, Button, Checkbox } from 'antd';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Input, Checkbox } from 'antd';
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
