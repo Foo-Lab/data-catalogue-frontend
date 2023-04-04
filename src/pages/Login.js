@@ -74,7 +74,7 @@ const Login = () => {
                                 message: 'Please input your username!'
                             }]}
                         >
-                            <Input />
+                            <Input autoFocus />
                         </Form.Item>
                         <Form.Item
                             label='Password'
