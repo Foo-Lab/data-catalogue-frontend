@@ -1,5 +1,11 @@
 import axios from '../modules/axios';
 
+/**
+ * Handles the axios response. If response.status === 200, return response object as `{ result: data, ... }`. 
+ * Otherwise returns a rejected Promise with the error message.
+ * @param {object} response the response object with shape `{ data, status, ... }`
+ * @returns returns an object with the shape `{ result: response.data, count: response.headers['x-total-count'] }` or rejected Promise if error
+ */
 const handleResponse = (response) => {
     if (response === undefined) return Promise.reject(new Error('Response is undefined. Backend may be down'))
     if (response.status !== 200) {
@@ -34,11 +40,11 @@ const handleResponse = (response) => {
 
 /**
  * Creates a new row, given a backend route and the data to be inserted
- * @param {string} name The backend route to the table in the database, i.e. 'user'
+ * @param {string} route The backend route to the table in the database, i.e. 'user'
  * @param {object} data The data to be inserted
  * @returns Will return the inserted row if successful, and Rejected Promise otherwise.
  */
-const create = (name, data) => {
+const create = async (route, data) => {
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -47,21 +53,22 @@ const create = (name, data) => {
         },
         data,
     };
-    return axios(`/${name}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}`, requestOptions);
+    return handleResponse(response);
 };
 
 /**
- * Runs the `SELECT * FROM table_name` query, given the table, 
+ * Runs the `SELECT * FROM table_name` query, given the table with route `route`, 
  * and some optional parameters to determine the number of rows and offset. 
  * 
- * @param {string} name The backend route to the table in the database, i.e. 'user'
+ * @param {string} route The backend route to the table in the database, i.e. 'user'
  * @param {int} page The current page number?
  * @param {int} size The number of rows to be returned
  * @param {string} sort The column name by which the rows will be sorted
  * @param {string} dir The direction of the sorting, either `asc` or `desc`
  * @returns Will return an array of rows if successful, and Rejected Promise otherwise.
  */
-const getAll = (name, page, size, sort, dir) => {
+const getAll = async (route, page, size, sort, dir) => {
     let params = {};
     if (page && size) {
         params = {
@@ -76,7 +83,8 @@ const getAll = (name, page, size, sort, dir) => {
         method: 'GET',
         params
     };
-    return axios(`/${name}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}`, requestOptions);
+    return handleResponse(response);
 };
 
 /**
@@ -85,16 +93,17 @@ const getAll = (name, page, size, sort, dir) => {
  * and the id to be matched.  
  * Should take some optional parameters to determine the number of rows and offset. 
  * 
- * @param {string} name The backend route to the table in the database, i.e. 'sample'
+ * @param {string} ref The backend route to the table in the database where id is fkey
  * @param {int} page The current page number?
  * @param {int} size The number of rows to be returned
  * @param {string} sort The column name by which the rows will be sorted
  * @param {string} dir The direction of the sorting, either `asc` or `desc`
- * @param {object} reference The backend route to the referenced table in the database, 
+ * @param {string} route route for the table where id is pkey, 
+ * @param {int} id The foreign key value, 
  * i.e. 'experiment'
  * @returns Will return an array of rows if successful, and Rejected Promise otherwise.
  */
-const getAllWhere = (name, page, size, sort, dir, { route, id }) => {
+const getAllWhere = async (ref, page, size, sort, dir, { route, id }) => {
     let params = {};
     if (page && size) {
         params = {
@@ -109,30 +118,53 @@ const getAllWhere = (name, page, size, sort, dir, { route, id }) => {
         method: 'GET',
         params
     };
-    return axios(`/${route}/${name}/${id}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}/${ref}/${id}`, requestOptions);
+    return handleResponse(response);
 };
 
-const getById = (name, id) => {
+/**
+ * Runs the `SELECT * FROM table_name WHERE pkey_id=id` query, i.e. the id provided is used in the WHERE clause.
+ * @param {string} route backend route to the table in the database where id is fkey
+ * @param {int} id pkey of the record
+ * @returns Will return the matching row if successful, and Rejected Promise otherwise. 
+ */
+const getById = async (route, id) => {
     const requestOptions = {
         method: 'GET',
     };
-    return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}/${id}`, requestOptions);
+    return handleResponse(response);
 };
 
-const update = (name, id, data) => {
+/**
+ * Updates the provided columns of a record, given the route and the id of the record.
+ * @param {string} route backend route to the table in the database containing the record
+ * @param {int} id pkey of the record
+ * @param {object} data object containing updated columns of the record
+ * @returns  Will return the updated row if successful, and Rejected Promise otherwise.
+ */
+const update = async (route, id, data) => {
     const requestOptions = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         data,
     };
-    return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}/${id}`, requestOptions);
+    return handleResponse(response);
 };
 
-const remove = (name, id) => {
+/**
+ * Deletes the record with pkey matching the provided id. 
+ * @param {string} route backend route to the table in the database containing the record
+ * @param {int} id pkey of the record
+ * @returns 
+ */
+const remove = async (route, id) => {
     const requestOptions = {
         method: 'DELETE'
     };
-    return axios(`/${name}/${id}`, requestOptions).then(handleResponse);
+    const response = await axios(`/${route}/${id}`, requestOptions);
+    return handleResponse(response);
 };
 
 export default {
