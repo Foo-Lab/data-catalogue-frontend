@@ -33,12 +33,13 @@ const DeleteModal = ({
         <Modal
             className='delete-modal'
             title={renderModalTitle()}
-            visible={isOpen}
+            open={isOpen}
             okText='Confirm'
             onOk={onOk}
             onCancel={onCancel}
         >
-            <p>{`Are you sure you want to delete '${name}'?`}</p>
+            <p>Are you sure you want to <b>permanently delete</b> {`'${name}'?`}</p>
+            <b>{`Note that deletion is irreversible and all other records (samples, sample files) that are connected to '${name}' will also be deleted!`}</b>
         </Modal>
     );
 };

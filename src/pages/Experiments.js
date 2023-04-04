@@ -10,7 +10,7 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
-import ListTable from '../components/pages/ListTable';
+import ListTable, { getColumnSearchProps } from '../components/pages/ListTable';
 import AddEditSelect from '../components/AddEditSelect';
 
 import { clearPageState } from '../store/listPageSlice';
@@ -53,28 +53,33 @@ const Experiments = () => {
             title: 'User',
             dataIndex: ['User', 'name'],
             sorter: (a, b) => compareStrings(a.User.name, b.User.name),
+            ...getColumnSearchProps(['User', 'name'])
         },
         {
             title: 'Experiment Name',
             dataIndex: 'name',
             sorter: (a, b) => compareStrings(a.name, b.name),
+            ...getColumnSearchProps('name'),
         },
         {
             title: 'Seq ID',
             dataIndex: 'code',
             sorter: (a, b) => compareStrings(a.code, b.code),
+            ...getColumnSearchProps('code'),
         },
         {
             title: 'Date',
             dataIndex: 'date',
             render: (date) => moment(date).format('DD/MM/YYYY'),
             sorter: (a, b) => new Date(b.date) - new Date(a.date),
+            ...getColumnSearchProps('date'),
         },
         {
             title: 'Description',
             dataIndex: 'description',
             ellipsis: true,
             width: '35%',
+            ...getColumnSearchProps('description'),
         },
     ];
 

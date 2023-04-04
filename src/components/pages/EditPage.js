@@ -51,7 +51,7 @@ const EditPage = ({
         } catch (error) {
             // console.log('e', error)
             const errorMessage = error.message ? error.message : error;
-            setSubmitError(errorMessage);
+            setSubmitError(`${errorMessage}. ${errorMessage === 'Validation error' ? 'Check if the entered ID or name already exists' : ''}`);
         }
     }
 

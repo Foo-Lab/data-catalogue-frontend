@@ -13,6 +13,7 @@ import { matchExistingUsername, matchExistingEmail } from '../services/authServi
 import { compareStrings } from '../utilities';
 import { useAuth } from '../hooks';
 import PrivateRoute from '../components/PrivateRoute';
+import { getColumnSearchProps } from '../components/pages/ListTable';
 
 const PAGE_NAME = 'user';
 
@@ -31,21 +32,26 @@ const Profile = () => {
             dataIndex: 'id',
             width: '10%',
             sorter: (a, b) => !(a > b),
+            ...getColumnSearchProps('id')
         },
         {
             title: 'Name',
             dataIndex: 'name',
             sorter: (a, b) => compareStrings(a.name, b.name),
+            ...getColumnSearchProps('name')
         },
         {
             title: 'Username',
             dataIndex: 'username',
             sorter: (a, b) => compareStrings(a.username, b.username),
+            ...getColumnSearchProps('username')
         },
         {
             title: 'Admin',
             dataIndex: 'isAdmin',
             width: '10%',
+            filters: [{ text: 'Admin', value: true }, { text: 'user', value: false }],
+            onFilter: (value, record) => record.isAdmin === value,
             render: (isAdmin) => (isAdmin ? <CheckOutlined /> : <CloseOutlined />)
         },
         {
@@ -53,6 +59,7 @@ const Profile = () => {
             dataIndex: 'email',
             width: '35%',
             sorter: (a, b) => compareStrings(a.email, b.email),
+            ...getColumnSearchProps('email')
         },
     ];
 
@@ -119,7 +126,7 @@ const Profile = () => {
         },
     ]
 
-    const formFields = [
+    const editFields = [
         {
             label: 'Name',
             name: 'name',
@@ -245,7 +252,7 @@ const Profile = () => {
                 <Route path=":id/edit" element={
                     <EditPage
                         {...pageProps.current}
-                        fields={formFields}
+                        fields={editFields}
                         getData={getItem}
                         onEdit={updateItem}
                     />}

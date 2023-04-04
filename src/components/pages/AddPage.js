@@ -25,9 +25,9 @@ const AddPage = ({
             await onAdd(values, id);
             navigate(-1, { relative: 'route' });
         } catch (error) {
-            // console.error(error);
-            // console.log('error', error)
-            setSubmitError(error.message);
+            // console.log('e', error)
+            const errorMessage = error.message ? error.message : error;
+            setSubmitError(`${errorMessage}. ${errorMessage === 'Validation error' ? 'Check if the entered ID or name already exists' : ''}`);
         }
     }
 

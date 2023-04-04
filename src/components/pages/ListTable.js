@@ -7,21 +7,40 @@ import {
     EyeOutlined,
     EditOutlined,
     DeleteOutlined,
+    SearchOutlined,
 } from '@ant-design/icons';
 
 import DeleteModal from '../DeleteModal';
+import FilterDropdown from '../FilterDropdown';
 
 import {
     checkIsDate,
     checkIsDateTime,
     formatDate,
     formatDateTime,
+    getNestedObject,
 } from '../../utilities';
 import { useAuth, useDataReducer } from '../../hooks';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListTable.scss';
 
+export const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: FilterDropdown,
+    filterIcon: (filtered) => (
+        <SearchOutlined
+            style={{
+                color: filtered ? 'teal' : undefined,
+            }}
+        />
+    ),
+    onFilter: (value, record) => {
+        const instance = Array.isArray(dataIndex) // check if 'key' of a data descriptor is an array. e.g. key: ['User', 'name']
+            ? getNestedObject(record, dataIndex) // descriptor info is in a nested object
+            : record[dataIndex] // descriptor can be easily accessed
+        return instance.toString().toLowerCase().includes(value.toLowerCase())
+    },
+});
 
 const ListTable = ({
     columns,
