@@ -1,26 +1,29 @@
 import React, { useRef } from 'react';
-import { Switch, Route, useRouteMatch, Link } from 'react-router-dom';
-import { Input, Button } from 'antd';
-import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Input, Checkbox } from 'antd';
+import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 import ViewPage from '../components/pages/ViewPage';
-import EditProfilePage from '../components/pages/EditProfilePage';
+import EditPage from '../components/pages/EditPage';
+import ListPage from '../components/pages/ListPage';
+import AddPage from '../components/pages/AddPage';
 
 import apiService from '../services/apiService';
-import ListPage from '../components/pages/ListPage';
+import { matchExistingUsername, matchExistingEmail } from '../services/authService';
 import { compareStrings } from '../utilities';
-import AddPage from '../components/pages/AddPage';
+import { useAuth } from '../hooks';
+import PrivateRoute from '../components/PrivateRoute';
+import { getColumnSearchProps } from '../components/pages/ListTable';
 
 const PAGE_NAME = 'user';
 
 const Profile = () => {
-    const { url, path } = useRouteMatch();
     const pageProps = useRef({
-        name: 'Profile',
+        name: 'profile',
         icon: <UserOutlined />,
-        baseUrl: url,
     });
     const newPasswordRef = useRef();
+    const auth = useAuth();
 
     // list
     const tableColumns = [
@@ -29,22 +32,34 @@ const Profile = () => {
             dataIndex: 'id',
             width: '10%',
             sorter: (a, b) => !(a > b),
+            ...getColumnSearchProps('id')
         },
         {
             title: 'Name',
             dataIndex: 'name',
             sorter: (a, b) => compareStrings(a.name, b.name),
+            ...getColumnSearchProps('name')
         },
         {
             title: 'Username',
             dataIndex: 'username',
             sorter: (a, b) => compareStrings(a.username, b.username),
+            ...getColumnSearchProps('username')
+        },
+        {
+            title: 'Admin',
+            dataIndex: 'isAdmin',
+            width: '10%',
+            filters: [{ text: 'Admin', value: true }, { text: 'user', value: false }],
+            onFilter: (value, record) => record.isAdmin === value,
+            render: (isAdmin) => (isAdmin ? <CheckOutlined /> : <CloseOutlined />)
         },
         {
             title: 'Email',
             dataIndex: 'email',
             width: '35%',
             sorter: (a, b) => compareStrings(a.email, b.email),
+            ...getColumnSearchProps('email')
         },
     ];
 
@@ -78,22 +93,40 @@ const Profile = () => {
             name: 'name',
             required: true,
             input: <Input />,
+            rules: [{
+                min: 3,
+                max: 50,
+                message: 'Name must be between 3 and 50 characters.'
+            }]
         },
         {
             label: 'Username',
             name: 'username',
             required: true,
             input: <Input />,
+            rules: [{
+                min: 3,
+                max: 20,
+                message: 'Username must be between 3 and 20 characters.'
+            }]
         },
         {
             label: 'Email',
             name: 'email',
             required: true,
             input: <Input />,
+            rules: [{
+                min: 3,
+                max: 50,
+                message: 'Email must be between 3 and 50 characters.'
+            }, {
+                type: 'email',
+                message: 'Please enter a valid email address.'
+            }]
         },
     ]
 
-    const formFields = [
+    const editFields = [
         {
             label: 'Name',
             name: 'name',
@@ -128,6 +161,10 @@ const Profile = () => {
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 ref={newPasswordRef}
             />,
+            rules: [{
+                min: 8,
+                message: 'Password must be at least 8 characters long.'
+            }]
         },
         {
             label: 'Confirm New Password',
@@ -137,12 +174,24 @@ const Profile = () => {
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 newpassref={newPasswordRef}
             />,
+            rules: [{
+                validator: async (rule, value) => {
+                    const newPassword = newPasswordRef.current.props.value;
+                    if (value !== newPassword) {
+                        console.log('value: ', value, 'newPassword: ', newPassword);
+                        return Promise.reject(new Error('Passwords do not match.'));
+                    }
+                    return Promise.resolve();
+                },
+                message: 'Passwords do not match.'
+            }]
         },
         {
             label: 'Admin',
             name: 'isAdmin',
             required: false,
             adminOnly: true,
+            input: <Checkbox />
         },
     ];
 
@@ -150,57 +199,65 @@ const Profile = () => {
 
     const getItem = (id) => apiService.getById('user', id);
 
-    const addItem = (record) => {
-        apiService.create(PAGE_NAME, {...record, password: 'password'});
+    const addItem = async (record) => {
+        const usernameFound = await matchExistingUsername(record.username).catch(() => { });
+        const emailFound = await matchExistingEmail(record.email).catch(() => { });
+        if (usernameFound) { throw new Error('Username already exists.') };
+        if (emailFound) { throw new Error('Email already exists.') };
+        return apiService.create(PAGE_NAME, { ...record, password: 'password' });
     }
 
-    const updateItem = (id, record) => apiService.update('user', id, record);
-
+    const updateItem = async (id, record) => {
+        const usernameFound = await matchExistingUsername(record.username).catch(() => { });
+        const emailFound = await matchExistingEmail(record.email).catch(() => { });
+        if (usernameFound && await id !== String(usernameFound?.result.id)) { throw new Error('Username already exists.') };
+        if (emailFound && await id !== String(emailFound?.result.id)) { throw new Error('Email already exists.') };
+        return apiService.update('user', id, record);
+    }
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 
     return (
         <div className='profile-page'>
-            <Switch>
-                <Route exact path="/profile">
-                    <div>
-                        <p>Own profile should be displayed here</p>
-                        <Link to='profile/all'>
-                            <Button>Show all profiles</Button>
-                        </Link>
-                    </div>
-                </Route>
-                <Route path={`${path}/all`}>
-                    <ListPage
-                        {...pageProps.current}
-                        columns={tableColumns}
-                        getData={getAllItems}
-                        onDelete={deleteItem} />
-                </Route>
-                <Route path={`${path}/add`}>
-                    <AddPage
-                        {...pageProps.current}
-                        fields={addNewFields}
-                        onAdd={addItem}
+            <Routes>
+                <Route path="/" element={
+                    !auth?.isAdmin // TODO change to a check if the user is not an admin
+                        ? <Navigate to={`${auth.userId}`} replace />
+                        : (
+                            <ListPage
+                                {...pageProps.current}
+                                columns={tableColumns}
+                                getData={getAllItems}
+                                onDelete={deleteItem}
+                            />
+                        )}
+                />
+                <Route element={<PrivateRoute adminOnly />}>
+                    <Route path="add" element={
+                        <AddPage
+                            {...pageProps.current}
+                            fields={addNewFields}
+                            onAdd={addItem}
+                        />}
                     />
                 </Route>
-                <Route path={`${path}/view/:id`}>
+                <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
-                        rows={listRows}
+                        dataDescriptors={listRows}
                         getData={getItem}
                         showDeleteButton={false}
                         showBackButton={false}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
-                    <EditProfilePage
+                    />}
+                />
+                <Route path=":id/edit" element={
+                    <EditPage
                         {...pageProps.current}
-                        fields={formFields}
+                        fields={editFields}
                         getData={getItem}
                         onEdit={updateItem}
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };

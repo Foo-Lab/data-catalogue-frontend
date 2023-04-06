@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { string, element, bool } from 'prop-types';
-import { useHistory, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { PageHeader as AntdPageHeader } from 'antd';
 
 import { splitCamelCase } from '../utilities';
@@ -13,12 +13,15 @@ const PageHeader = ({
     icon,
     showBackButton,
     children,
+    showBreadCrumbs,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [breadcrumbs, setBreadcrumbs] = useState([]);
+    // console.log('pageheader', location.pathname, 'state:', location.state)
 
     useEffect(() => {
-        const paths = (history.location.pathname)
+        const paths = (location.pathname)
             .split('/')
             .filter((p) => p && !Number(p))
             .map((p) => ({
@@ -33,14 +36,14 @@ const PageHeader = ({
             },
             ...paths,
         ]);
-    }, [history.location.pathname]);
+    }, [location.pathname]);
 
     const renderBreadcrumb = (route, params, routes, paths) => {
         const last = routes.indexOf(route) === routes.length - 1;
         return (
             last
                 ? <span>{route.breadcrumbName}</span>
-                : <Link to={`/${paths.join('/')}`}>{route.breadcrumbName}</Link>
+                : <Link to={`/${paths.join('/')}`} state={{ from: location.pathname }}>{route.breadcrumbName}</Link>
         );
     };
 
@@ -63,13 +66,15 @@ const PageHeader = ({
             }
             onBack={
                 showBackButton
-                    ? () => history.goBack()
+                    ? () => navigate(-1, { relative: 'route' })
                     : null
             }
-            breadcrumb={{
-                routes: breadcrumbs,
-                itemRender: renderBreadcrumb,
-            }}
+            breadcrumb={
+                (showBreadCrumbs) &&
+                {
+                    routes: breadcrumbs,
+                    itemRender: renderBreadcrumb,
+                }}
             extra={children}
         />
     );
@@ -81,6 +86,7 @@ PageHeader.propTypes = {
     icon: element,
     showBackButton: bool,
     children: element,
+    showBreadCrumbs: bool,
 };
 
 PageHeader.defaultProps = {
@@ -88,6 +94,7 @@ PageHeader.defaultProps = {
     icon: null,
     showBackButton: true,
     children: null,
+    showBreadCrumbs: true,
 };
 
 export default PageHeader;

@@ -1,23 +1,32 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { useLocation, Navigate, Outlet } from 'react-router-dom';
+import { bool } from 'prop-types';
+import { useAuth } from '../hooks';
+// import { authenticationService } from '@/_services';
+// TODO use <Outlet/> 
 
-import { authenticationService } from '@/_services';
+const PrivateRoute = ({ adminOnly }) => {
+    const auth = useAuth();
+    const location = useLocation();
+    // const from = location.state?.from || location.pathname;
+    // console.log(location)
+    if (!auth?.name) {
+        // console.log(auth)
+        // console.log(from)
+        return <Navigate to='/login' state={{ from: location }} replace />
+    }
+    return (!adminOnly || auth.isAdmin)
+        ? <Outlet />
+        : <Navigate to='/unauthorized' state={{ from: location }} replace /> // route is adminOnly, but !user.isAdmin
+};
 
-export const PrivateRoute = ({ component: Component, roles, ...rest }) => (
-    <Route {...rest} render={props => {
-        const currentUser = authenticationService.currentUserValue;
-        if (!currentUser) {
-            // not logged in so redirect to login page with the return url
-            return <Redirect to={{ pathname: '/login', state: { from: props.location } }} />
-        }
+PrivateRoute.propTypes = {
+    adminOnly: bool,
+}
 
-        // check if route is restricted by role
-        if (roles && roles.indexOf(currentUser.role) === -1) {
-            // role not authorised so redirect to home page
-            return <Redirect to={{ pathname: '/'}} />
-        }
+PrivateRoute.defaultProps = {
+    adminOnly: false,
+}
 
-
-        return <Component {...props} />
-    }} />
-);
+export default PrivateRoute;

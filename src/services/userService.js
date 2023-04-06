@@ -1,15 +1,13 @@
 import axios from '../modules/axios';
 
 const handleResponse = (response) => {
-    if (response.status !== 200) {
-        if (response.status === 401) {
-            // logout();
-            // location.reload(true);
-            console.error('401 not authorized')
-        }
-        return Promise.reject(response);
+    if (response.status === 200) return response;
+    if (response.status === 401) {
+        // logout();
+        // location.reload(true);
+        console.error('401 not authorized')
     }
-    return response;
+    return Promise.reject(response);
 };
 
 const login = (data) => {
@@ -18,14 +16,15 @@ const login = (data) => {
         headers: { 'Content-Type': 'application/json' },
         data,
     };
-    return axios('/user/login', requestOptions).then(handleResponse);
+    return axios('/user/auth', requestOptions).then(handleResponse);
 }
 
 const logout = () => {
     // localStorage.removeItem('user');
 }
 
+
 export default {
     login,
-    logout
+    logout,
 };

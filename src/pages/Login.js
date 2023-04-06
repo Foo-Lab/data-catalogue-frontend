@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Alert, Card, Form, Input, Button, Spin } from 'antd';
 import {
     LoginOutlined,
@@ -16,11 +16,15 @@ import './Login.scss';
 
 const Login = () => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
     const pageProps = useRef({
         name: 'login',
         icon: <LoginOutlined />,
     });
+
+    const location = useLocation();
+    const from = location.state?.from || '/'
+    // console.log(location.state)
 
     const { isFetching, isSuccess, isError, errorMessage } = useSelector(
         selectUserStatus
@@ -29,7 +33,8 @@ const Login = () => {
     useEffect(() => {
         if (isSuccess) {
             dispatch(clearState());
-            history.push('/');
+            // console.log('navigating to ', from)
+            navigate(from, { replace: true });
         }
     }, [isSuccess]);
 
@@ -42,6 +47,7 @@ const Login = () => {
             <PageHeader
                 name={pageProps.current.name}
                 icon={pageProps.current.icon}
+                showBackButton={false}
             />
             <div className='page-content'>
                 {isError &&
@@ -68,7 +74,7 @@ const Login = () => {
                                 message: 'Please input your username!'
                             }]}
                         >
-                            <Input />
+                            <Input autoFocus />
                         </Form.Item>
                         <Form.Item
                             label='Password'
@@ -90,7 +96,7 @@ const Login = () => {
                                 block
                                 disabled={isFetching}
                             >
-                                { isFetching ? <Spin size='small' /> : 'Login' }
+                                {isFetching ? <Spin size='small' /> : 'Login'}
                             </Button>
                         </Form.Item>
                     </Form>

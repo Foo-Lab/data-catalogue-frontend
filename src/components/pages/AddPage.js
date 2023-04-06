@@ -1,35 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
 
 import './AddPage.scss';
+import ErrorAlert from '../ErrorAlert';
 
 const AddPage = ({
     name,
     icon,
-    baseUrl,
     fields,
     onAdd,
     showBackButton,
 }) => {
-    const history = useHistory();
-
+    const { id } = useParams(); // only present for adding SampleFiles
+    const navigate = useNavigate();
+    const [submitError, setSubmitError] = useState(null);
     const onFinish = async (values) => {
-        await onAdd(values);
-        history.push(baseUrl);
+        setSubmitError(null);
+        try {
+            // console.log('values', values)
+            await onAdd(values, id);
+            navigate(-1, { relative: 'route' });
+        } catch (error) {
+            // console.log('e', error)
+            const errorMessage = error.message ? error.message : error;
+            setSubmitError(`${errorMessage}. ${errorMessage === 'Validation error' ? 'Check if the entered ID or name already exists' : ''}`);
+        }
     }
 
-    const onCancel = () => history.goBack();
+    const onCancel = () => navigate(-1, { relative: 'route' });
 
     const renderForm = () => (
         <Form
             name={name}
-            labelAlign='left'
-            labelCol={{ span: 3, offset: 1 }}
-            wrapperCol={{ span: 19 }}
             onFinish={onFinish}
             scrollToFirstError
         >
@@ -38,10 +44,15 @@ const AddPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    rules={[{
-                        required: f.required,
-                        message: `Please input your ${f.label}!`
-                    }]}
+                    initialValue={f.initialValue}
+                    rules={[
+                        {
+                            required: f.required,
+                            message: `Please input your ${f.label}!`
+                        },
+                        ...(f.rules ? f.rules : [])
+                    ]}
+
                 >
                     {f.input}
                 </Form.Item>
@@ -49,7 +60,7 @@ const AddPage = ({
 
             <Form.Item
                 className='form-control-buttons'
-                wrapperCol={{span: 4, offset: 10}}
+                wrapperCol={{ span: 4, offset: 10 }}
             >
                 <Button type='primary' htmlType='submit'>
                     Submit
@@ -63,6 +74,7 @@ const AddPage = ({
 
     return (
         <div className='add-page'>
+            {submitError && <ErrorAlert message={submitError} />}
             <PageHeader
                 name={name}
                 action='add'
@@ -79,7 +91,6 @@ const AddPage = ({
 AddPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
     fields: instanceOf(Array).isRequired,
     onAdd: func.isRequired,
     showBackButton: bool,

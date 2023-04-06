@@ -4,11 +4,19 @@ import { Select } from 'antd';
 
 const { Option } = Select;
 
-// TODO defaultActiveFirstOption not working
-const AddEditSelect = ({ options }) => (
+const AddEditSelect = ({ options, field }) => (
     <Select
         defaultActiveFirstOption
+        optionFilterProp='label'
+        filterOption={(input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input?.toLowerCase())
+        }
+        filterSort={(optionA, optionB) =>
+            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+        }
         style={{ textAlign: 'left' }}
+        placeholder={`Select ${field}`}
+        showSearch
     >
         {options.map(d => (
             <Option
@@ -20,7 +28,7 @@ const AddEditSelect = ({ options }) => (
             </Option>
         ))}
     </Select>
-);
+)
 
 AddEditSelect.propTypes = {
     options: arrayOf(
@@ -29,6 +37,7 @@ AddEditSelect.propTypes = {
             name: string.isRequired,
         })
     ).isRequired,
+    field: string.isRequired,
 };
 
 export default AddEditSelect;

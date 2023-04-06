@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
-import { Input, DatePicker } from 'antd';
-import { ExperimentOutlined } from '@ant-design/icons';
+import { Routes, Route, Link } from 'react-router-dom';
+import { Input, DatePicker, Tooltip, Button } from 'antd';
+import { DotChartOutlined, ExperimentOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { plural } from 'pluralize';
 
@@ -10,32 +10,38 @@ import ListPage from '../components/pages/ListPage';
 import AddPage from '../components/pages/AddPage';
 import ViewPage from '../components/pages/ViewPage';
 import EditPage from '../components/pages/EditPage';
+import ListTable, { getColumnSearchProps } from '../components/pages/ListTable';
 import AddEditSelect from '../components/AddEditSelect';
 
 import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { compareStrings } from '../utilities';
+import PageHeader from '../components/PageHeader';
+import { useAuth } from '../hooks';
 
 const PAGE_NAME = 'experiment';
 
 const Experiments = () => {
     const dispatch = useDispatch();
-    const { url, path } = useRouteMatch();
+    const auth = useAuth();
     const pageProps = useRef({
         name: plural(PAGE_NAME),
-        icon: <ExperimentOutlined />,
-        baseUrl: url,
+        referencedBy: { name: 'Sample', url: 'samples' },
+        icon: <DotChartOutlined />,
     });
 
-    const [ users, setUsers ] = useState([]);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const getOptions = async () => {
             const { result } = await apiService.getAll('user');
             setUsers(result);
         };
-        getOptions();
-
+        try {
+            getOptions();
+        } catch (error) {
+            console.log(error)
+        }
         return () => {
             dispatch(clearPageState());
         };
@@ -47,28 +53,33 @@ const Experiments = () => {
             title: 'User',
             dataIndex: ['User', 'name'],
             sorter: (a, b) => compareStrings(a.User.name, b.User.name),
+            ...getColumnSearchProps(['User', 'name'])
+        },
+        {
+            title: 'Experiment Name',
+            dataIndex: 'name',
+            sorter: (a, b) => compareStrings(a.name, b.name),
+            ...getColumnSearchProps('name'),
+        },
+        {
+            title: 'Seq ID',
+            dataIndex: 'code',
+            sorter: (a, b) => compareStrings(a.code, b.code),
+            ...getColumnSearchProps('code'),
         },
         {
             title: 'Date',
             dataIndex: 'date',
             render: (date) => moment(date).format('DD/MM/YYYY'),
             sorter: (a, b) => new Date(b.date) - new Date(a.date),
-        },
-        {
-            title: 'Seq ID',
-            dataIndex: 'code',
-            sorter: (a, b) => compareStrings(a.code, b.code),
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            sorter: (a, b) => compareStrings(a.name, b.name),
+            ...getColumnSearchProps('date'),
         },
         {
             title: 'Description',
             dataIndex: 'description',
             ellipsis: true,
             width: '35%',
+            ...getColumnSearchProps('description'),
         },
     ];
 
@@ -79,28 +90,54 @@ const Experiments = () => {
             key: ['User', 'name'],
         },
         {
-            title: 'Date',
-            key: 'date',
+            title: 'Experiment Name',
+            key: 'name',
         },
         {
             title: 'Seq ID',
             key: 'code',
         },
         {
-            title: 'Name',
-            key: 'name',
+            title: 'Date',
+            key: 'date',
         },
         {
             title: 'Description',
             key: 'description',
         },
+    ];
+    // list Samples
+    const sampleCols = [
         {
-            title: 'Created At',
-            key: 'createdAt',
+            title: 'Date',
+            dataIndex: 'date',
+            render: (date) => moment(date).format('DD/MM/YYYY'),
+            sorter: (a, b) => new Date(b.date) - new Date(a.date),
         },
         {
-            title: 'Updated At',
-            key: 'updatedAt',
+            title: 'Seq Type',
+            dataIndex: ['SequencingType', 'name'],
+            sorter: (a, b) => compareStrings(a.Status.name, b.Status.name),
+        },
+        {
+            title: 'Sample ID',
+            dataIndex: 'code',
+            sorter: (a, b) => compareStrings(a.code, b.code),
+        },
+        {
+            title: 'Sample Name',
+            dataIndex: 'name',
+            sorter: (a, b) => compareStrings(a.name, b.name),
+        },
+        {
+            title: 'Experiment',
+            dataIndex: ['Experiment', 'name'],
+            sorter: (a, b) => compareStrings(a.Experiment.name, b.Experiment.name),
+        },
+        {
+            title: 'User',
+            dataIndex: ['User', 'name'],
+            sorter: (a, b) => compareStrings(a.User.name, b.User.name),
         },
     ];
 
@@ -110,13 +147,15 @@ const Experiments = () => {
             label: 'User',
             name: 'userId',
             required: true,
-            input: AddEditSelect({ options: users }),
+            input: AddEditSelect({ options: users, field: 'user' }),
+            initialValue: auth.userId,
         },
         {
             label: 'Date',
             name: 'date',
             required: true,
             input: <DatePicker showToday format='DD/MM/YYYY' />,
+            initialValue: moment(new Date().getDate(), 'DD/MM/YYYY')
         },
         {
             label: 'Seq ID',
@@ -125,7 +164,7 @@ const Experiments = () => {
             input: <Input />,
         },
         {
-            label: 'Name',
+            label: 'Experiment Name',
             name: 'name',
             required: true,
             input: <Input />,
@@ -133,7 +172,7 @@ const Experiments = () => {
         {
             label: 'Description',
             name: 'description',
-            input: <Input.TextArea rows={8}/>,
+            input: <Input.TextArea rows={8} />,
         },
     ];
 
@@ -142,47 +181,75 @@ const Experiments = () => {
 
     const getItem = (id) => apiService.getById(PAGE_NAME, id);
 
+    const getByExpt = (page, size, sort, dir, id) => apiService.getAllWhere(PAGE_NAME, page, size, sort, dir, { route: 'sample', id });
+
     const addItem = (record) => apiService.create(PAGE_NAME, record);
 
-    const updateItem =  (id, record) => apiService.update(PAGE_NAME, id, record);
+    const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
 
     const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
 
+    // const addSample = (record, exptId) => apiService.create('sampleFile', { sampleId, ...record });
+
+    const deleteSampleItem = (id) => apiService.remove('sample', id)
+
     return (
         <div className='experiments-page'>
-            <Switch>
-                <Route exact path={path}>
+            <Routes>
+                <Route path="/" element={
                     <ListPage
                         {...pageProps.current}
                         columns={tableColumns}
                         getData={getAllItems}
                         onDelete={deleteItem}
-                    />
-                </Route>
-                <Route path={`${path}/add`}>
+                    />}
+                />
+                <Route path="add" element={
                     <AddPage
                         {...pageProps.current}
                         fields={formFields}
                         onAdd={addItem}
-                    />
-                </Route>
-                <Route path={`${path}/view/:id`}>
+                    />}
+                />
+                <Route path=":id" element={
                     <ViewPage
                         {...pageProps.current}
-                        rows={listRows}
+                        dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
-                    />
-                </Route>
-                <Route path={`${path}/edit/:id`}>
+                        referenceListPage={<>
+                            <PageHeader
+                                action={`Related ${plural(pageProps.current.referencedBy.name)}`}
+                                icon={<ExperimentOutlined />}
+                                showBackButton={false}
+                                showBreadCrumbs={false}
+                            >
+                                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
+                                    <Link to='../../samples/add'>
+                                        <Button type='primary' shape='circle' icon={<ExperimentOutlined />} />
+                                    </Link>
+                                </Tooltip>
+                            </PageHeader>
+                            <ListTable
+                                referenceUrl={pageProps.current.referencedBy.url}
+                                columns={sampleCols}
+                                getData={getByExpt}
+                                onDelete={deleteSampleItem}
+                                allowClickRow
+                                allowView
+                            />
+                        </>}
+                    />}
+                />
+                <Route path=":id/edit" element={
                     <EditPage
                         {...pageProps.current}
                         fields={formFields}
                         getData={getItem}
                         onEdit={updateItem}
-                    />
-                </Route>
-            </Switch>
+                    />}
+                />
+            </Routes>
         </div>
     );
 };

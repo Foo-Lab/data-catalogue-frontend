@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { string, element, instanceOf, func, bool } from 'prop-types';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'antd';
 
 import PageHeader from '../PageHeader';
@@ -9,6 +9,7 @@ import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
 import { useDataReducer } from '../../hooks';
+import ErrorAlert from '../ErrorAlert';
 
 const EditPage = ({
     name,
@@ -18,44 +19,48 @@ const EditPage = ({
     onEdit,
     showBackButton,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const [data, dataDispatch] = useDataReducer();
+    const [submitError, setSubmitError] = useState(null);
+    const [pageData, dispatchPageData] = useDataReducer();
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const { result } = await getData(id);
-                Object.keys(result).forEach(key => {
-                    const field = result[key];
-                    if (checkIsDate(field)) {
-                        result[key] = formatDate(field, false);
-                    }
-                });
-                dataDispatch({ type: "SET_DATA", value: result });
-            } catch (error) {
-                console.error(error);
-                dataDispatch({ type: "ERROR", value: error });
-            }
-        }
+            const { result } = await getData(id);
+            Object.keys(result).forEach(key => {
+                const field = result[key];
+                if (checkIsDate(field)) {
+                    result[key] = formatDate(field, false);
+                }
+            });
+            dispatchPageData({ type: "SET_DATA", value: result });
+        };
 
-        fetchData();
+        fetchData().catch(error => {
+            console.error(error);
+            dispatchPageData({ type: "ERROR", value: error });
+        });
     }, [id]);
 
     const onFinish = async (values) => {
-        await onEdit(id, values);
-        history.goBack();
+        setSubmitError(null);
+        try {
+            // console.log(values);
+            await onEdit(id, values);
+            navigate(-1, { relative: 'route' });
+        } catch (error) {
+            // console.log('e', error)
+            const errorMessage = error.message ? error.message : error;
+            setSubmitError(`${errorMessage}. ${errorMessage === 'Validation error' ? 'Check if the entered ID or name already exists' : ''}`);
+        }
     }
 
-    const onCancel = () => history.goBack();
+    const onCancel = () => navigate(-1, { relative: 'route' });
 
     const renderForm = () => (
         <Form
             name={name}
-            labelAlign='left'
-            labelCol={{ span: 3, offset: 1 }}
-            wrapperCol={{ span: 19 }}
-            initialValues={data.value}
+            initialValues={pageData.value}
             onFinish={onFinish}
             scrollToFirstError
         >
@@ -64,10 +69,14 @@ const EditPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    rules={[{
-                        required: f.required,
-                        message: `Please input your ${f.label}!`
-                    }]}
+                    rules={[
+                        {
+                            required: f.required,
+                            message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'New Password'}!`
+                        },
+                        ...(f.rules ? f.rules : [])
+                    ]}
+                    valuePropName={f.name === 'isAdmin' ? "checked" : "value"}
                 >
                     {f.input}
                 </Form.Item>
@@ -89,6 +98,7 @@ const EditPage = ({
 
     return (
         <div className='edit-page'>
+            {(submitError?.message !== undefined || submitError) && <ErrorAlert message={submitError} />}
             <PageHeader
                 name={name}
                 action='edit'
@@ -96,9 +106,9 @@ const EditPage = ({
                 showBackButton={showBackButton}
             />
             <div className='page-content'>
-                {data.ok
+                {pageData.ok
                     ? renderForm()
-                    : <p>{`${data.errorMessage}`}</p>
+                    : <p>{`${pageData.errorMessage}`}</p>
                 }
             </div>
         </div>

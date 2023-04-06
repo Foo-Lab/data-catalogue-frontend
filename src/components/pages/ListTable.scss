@@ -1,0 +1,16 @@
+.page-content {
+    .ant-table-row {
+        cursor: pointer;
+
+        .list-actions {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+
+            button {
+                padding: 0;
+                border: 0;
+            }
+        }
+    }
+}

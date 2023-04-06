@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { string, element, instanceOf, func, bool } from 'prop-types';
-import { Link, useHistory, useParams } from 'react-router-dom';
-import { Descriptions, Tooltip, Button } from 'antd';
+import { string, element, instanceOf, func, bool, node } from 'prop-types';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Descriptions, Tooltip, Button, Empty } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import PageHeader from '../PageHeader';
@@ -14,54 +14,65 @@ import {
     formatDateTime,
     getNestedObject,
 } from '../../utilities';
+import { useDataReducer } from '../../hooks';
 
 import './ViewPage.scss';
-import { useDataReducer } from '../../hooks';
 
 const { Item } = Descriptions;
 
 const ViewPage = ({
     name,
     icon,
-    baseUrl,
-    rows,
+    dataDescriptors,
     getData,
     onDelete,
     showEditButton,
     showDeleteButton,
     showBackButton,
+    referenceListPage,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const [data, dataDispatch] = useDataReducer();
+    const [pageData, dispatchPageData] = useDataReducer();
     const [isModalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const { result } = await getData(id);
-                Object.keys(result).forEach(key => {
-                    const field = result[key];
-                    if (checkIsDate(field)) {
-                        result[key] = formatDate(field);
-                    } else if (checkIsDateTime(field)) {
-                        result[key] = formatDateTime(field);
-                    }
-                });
-                dataDispatch({ type: "SET_DATA", value: result });
-            } catch (error) {
-                console.error(error);
-                dataDispatch({ type: "ERROR", value: error });
-            }
-        }
+            const { result } = await getData(id);
+            Object.keys(result).forEach(key => {
+                const field = result[key];
+                if (checkIsDate(field)) {
+                    result[key] = formatDate(field);
+                } else if (checkIsDateTime(field)) {
+                    result[key] = formatDateTime(field);
+                }
+            });
+            console.log('THE RESULT', result);
+            dispatchPageData({ type: "SET_DATA", value: result });
+        };
 
-        fetchData();
+        fetchData().catch(error => {
+            console.error(error);
+            dispatchPageData({ type: "ERROR", value: error });
+        });
     }, [id]);
 
     const onDeleteItem = async (item) => {
         await onDelete(item.id);
-        history.goBack();
+        navigate(-1, { relative: 'route' });
     }
+
+    // const copyClipboard = async () => { };
+    // const copyClipboard = async (event) => {
+    //     event.stopPropagation();
+    //     const url = event.target.value
+    //     try {
+    //         console.log(url);
+    //         // await navigator.clipboard.writeText(url);
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
     return (
         <div className='view-page'>
@@ -73,7 +84,7 @@ const ViewPage = ({
             >
                 <>
                     {showEditButton &&
-                        <Link to={`${baseUrl}/edit/${id}`}>
+                        <Link to='edit'>
                             <Tooltip title={`Edit ${name}`}>
                                 <Button
                                     type='primary'
@@ -83,9 +94,6 @@ const ViewPage = ({
                             </Tooltip>
                         </Link>
                     }
-                    {/* {name === "Profile" && 
-                        <p>HELLO WORLDDLDLDLDLDLD</p>
-                    } */}
                     {showDeleteButton &&
                         <Button
                             type='primary'
@@ -101,36 +109,45 @@ const ViewPage = ({
             </PageHeader>
 
             <div className='page-content'>
-                <Descriptions
-                    column={1}
-                    labelStyle={{ width: '20%' }}
-                    bordered
-                >
-                    {data.ok ? rows.map(row => (
-                        <Item
-                            key={
-                                Array.isArray(row.key)
-                                    ? row.key.join('.')
-                                    : row.key
-                            }
-                            className='view-item'
-                            label={row.title}
-                            labelStyle={{ textTransform: 'capitalize' }}
+                {pageData.ok
+                    ? <div>
+                        <Descriptions
+                            // column={2}
+                            size='small'
+                            labelStyle={{ width: '10%' }}
+                            bordered
                         >
                             {
-                                Array.isArray(row.key)
-                                    ? getNestedObject(data.value, row.key)
-                                    : data.value[row.key]
+                                dataDescriptors.map(each => (
+                                    <Item
+                                        key={
+                                            Array.isArray(each.key) // check if 'key' of a data descriptor is an array. e.g. key: ['User', 'name']
+                                                ? each.key.join('.') // combines ['User', 'name'] => 'User.name'
+                                                : each.key
+                                        }
+                                        className='view-item'
+                                        label={each.title}
+                                        labelStyle={{ textTransform: 'capitalize' }}
+                                    >
+                                        {
+                                            Array.isArray(each.key) // check if 'key' of a data descriptor is an array. e.g. key: ['User', 'name']
+                                                ? getNestedObject(pageData.value, each.key) // descriptor info is in a nested object
+                                                : pageData.value[each.key] // descriptor can be easily accessed
+                                        }
+                                    </Item>
+                                ))
                             }
-                        </Item>
-                    )) : <p>{`${data.errorMessage}`}</p>}
-                </Descriptions>
-                {data.value?.name &&
+                        </Descriptions>
+                        {referenceListPage}
+                    </div>
+                    : <Empty description={<span>{pageData.errorMessage}</span>} />
+                }
+                {pageData.value?.name &&
                     <DeleteModal
-                        name={data.value.name}
+                        name={pageData.value.name}
                         isOpen={isModalOpen}
-                        toggleOpen={setModalOpen}
-                        onDelete={() => onDeleteItem(data)}
+                        toggleItemToDelete={setModalOpen}
+                        onDelete={() => onDeleteItem(pageData.value)}
                     />
                 }
             </div>
@@ -141,13 +158,13 @@ const ViewPage = ({
 ViewPage.propTypes = {
     name: string.isRequired,
     icon: element,
-    baseUrl: string.isRequired,
-    rows: instanceOf(Array).isRequired,
+    dataDescriptors: instanceOf(Array).isRequired,
     getData: func.isRequired,
     onDelete: func,
     showEditButton: bool,
     showDeleteButton: bool,
     showBackButton: bool,
+    referenceListPage: node,
 };
 
 ViewPage.defaultProps = {
@@ -156,6 +173,7 @@ ViewPage.defaultProps = {
     showEditButton: true,
     showDeleteButton: true,
     showBackButton: true,
+    referenceListPage: null,
 };
 
 export default ViewPage;
