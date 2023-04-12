@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'antd';
 import {
     DatabaseOutlined,
@@ -9,66 +9,57 @@ import {
 
 import './AppMenu.scss';
 
-const { SubMenu, Item } = Menu;
+// const { SubMenu, Item } = Menu;
 
 const menuItems = [
     {
         key: 'data-submenu',
-        title: 'Data',
+        label: 'Data',
         icon: <DatabaseOutlined />,
         children: [
             {
-                key: 'experiments',
-                title: 'Experiments',
-                link: '/experiments',
+                key: '/experiments',
+                label: 'Experiments',
             },
             {
-                key: 'samples',
-                title: 'Samples',
-                link: '/samples',
+                key: '/samples',
+                label: 'Samples',
             },
         ],
     },
     {
-        key: 'profile',
-        title: 'Profile',
+        key: '/profile',
+        label: 'Profile',
         icon: <UserOutlined />,
-        link: '/profile'
     },
     {
         key: 'config-submenu',
-        title: 'Configuration',
+        label: 'Configuration',
         icon: <SettingOutlined />,
         children: [
             {
-                key: 'fileTypes',
-                title: 'File Types',
-                link: '/fileTypes',
+                key: '/fileTypes',
+                label: 'File Types',
             },
             {
-                key: 'organisms',
-                title: 'Organisms',
-                link: '/organisms',
+                key: '/organisms',
+                label: 'Organisms',
             },
             {
-                key: 'sequencers',
-                title: 'Sequencers',
-                link: '/sequencers',
+                key: '/sequencers',
+                label: 'Sequencers',
             },
             {
-                key: 'sequencingProviders',
-                title: 'Sequencing Providers',
-                link: '/sequencingProviders',
+                key: '/sequencingProviders',
+                label: 'Sequencing Providers',
             },
             {
-                key: 'sequencingTypes',
-                title: 'Sequencing Types',
-                link: '/sequencingTypes',
+                key: '/sequencingTypes',
+                label: 'Sequencing Types',
             },
             {
-                key: 'statuses',
-                title: 'Statuses',
-                link: '/statuses',
+                key: '/statuses',
+                label: 'Statuses',
             },
         ],
     },
@@ -76,48 +67,49 @@ const menuItems = [
 
 const AppMenu = () => {
     const location = useLocation();
-    const [ selectedKeys, setSelectedKeys ] = useState([]);
-    const [ openKeys, setOpenKeys ] = useState([]);
+    const navigate = useNavigate();
+    const [selectedKeys, setSelectedKeys] = useState([]);
+    const [openKeys, setOpenKeys] = useState([]);
 
     useEffect(() => {
         const currentPath = (location.pathname).split('/')[1];
-        setSelectedKeys([ currentPath ]);
+        setSelectedKeys([currentPath]);
 
         const openSubmenu = menuItems.find(i =>
             i.children && i.children.some(c => c.key === currentPath)
         );
         if (openSubmenu) {
-            setOpenKeys([ openSubmenu.key ]);
+            setOpenKeys([openSubmenu.key]);
         }
     }, [location.pathname]);
 
-    const onSelect = ({ key }) => setSelectedKeys([ key ]);
+    const onSelect = ({ key }) => setSelectedKeys([key]);
 
     const onOpenChange = (keys) => {
         const newOpenKeys = keys.filter(k => !openKeys.includes(k));
         setOpenKeys(newOpenKeys)
     };
 
-    const renderMenuItem = (item) => (
-        <Item
-            key={item.key}
-            icon={item?.icon}
-        >
-            <Link to={item.link}>{item.title}</Link>
-        </Item>
-    );
+    // const renderMenuItem = (item) => (
+    //     <Item
+    //         key={item.key}
+    //         icon={item?.icon}
+    //     >
+    //         <Link to={item.link}>{item.label}</Link>
+    //     </Item>
+    // );
 
-    const renderSubMenu = (submenu) => (
-        <SubMenu
-            key={submenu.key}
-            icon={submenu.icon}
-            title={submenu.title}
-        >
-            {submenu.children.map(
-                child => renderMenuItem(child)
-            )}
-        </SubMenu>
-    );
+    // const renderSubMenu = (submenu) => (
+    //     <SubMenu
+    //         key={submenu.key}
+    //         icon={submenu.icon}
+    //         label={submenu.label}
+    //     >
+    //         {submenu.children.map(
+    //             child => renderMenuItem(child)
+    //         )}
+    //     </SubMenu>
+    // );
 
     return (
         <div className='app-menu'>
@@ -127,13 +119,12 @@ const AppMenu = () => {
                 openKeys={openKeys}
                 onSelect={onSelect}
                 onOpenChange={onOpenChange}
-            >
-                {menuItems.map(item =>
-                    item.children
-                        ? renderSubMenu(item)
-                        : renderMenuItem(item)
-                )}
-            </Menu>
+                items={menuItems}
+                onClick={item => {
+                    console.log(`nav to`, item)
+                    navigate(item.key, { state: location.pathname })
+                }}
+            />
         </div>
     );
 };
