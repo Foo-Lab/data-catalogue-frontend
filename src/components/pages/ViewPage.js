@@ -14,7 +14,7 @@ import {
     formatDateTime,
     getNestedObject,
 } from '../../utilities';
-import { useDataReducer } from '../../hooks';
+import { useDataReducer, usePrivateAxios } from '../../hooks';
 
 import './ViewPage.scss';
 
@@ -31,6 +31,7 @@ const ViewPage = ({
     showBackButton,
     referenceListPage,
 }) => {
+    usePrivateAxios();
     const navigate = useNavigate();
     const { id } = useParams();
     const [pageData, dispatchPageData] = useDataReducer();
@@ -47,12 +48,10 @@ const ViewPage = ({
                     result[key] = formatDateTime(field);
                 }
             });
-            console.log('THE RESULT', result);
             dispatchPageData({ type: "SET_DATA", value: result });
         };
 
         fetchData().catch(error => {
-            console.error(error);
             dispatchPageData({ type: "ERROR", value: error });
         });
     }, [id]);

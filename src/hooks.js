@@ -1,9 +1,15 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-import { selectUserInfo } from "./store/userSlice";
+import { useSearchParams } from "react-router-dom";
+import { refreshUser, selectUserInfo } from "./store/userSlice";
+import axios from "./modules/axios";
+import axiosPrivate from "./modules/axiosPrivate";
 
-export const useQueryParams = () => new URLSearchParams(useLocation().search);
+// export const useQueryParams = () => new URLSearchParams(useLocation().search);
+export const useDefaultValue = (field) => {
+    const searchParams = useSearchParams()[0];
+    return searchParams.get(field);
+}
 
 const dataReducer = (state, action) => {
     if (action.type === "SET_DATA") {
@@ -21,22 +27,77 @@ const dataReducer = (state, action) => {
     return { ok: null, value: null }
 };
 
-export const useDataReducer = (reducerFunction = dataReducer, initialValues = { ok: null, errorMessage: 'Loading...' }, initialFn) => useReducer(reducerFunction, initialValues, initialFn);
+export const useDataReducer = (
+    reducerFunction = dataReducer,
+    initialValues = { ok: null, errorMessage: 'Loading...' },
+    initialFn
+) => useReducer(reducerFunction, initialValues, initialFn);
 
 export const useAuth = () => useSelector(selectUserInfo);
 
-/*
-    // use userSlice as token
-    // TODO change to using access token
-    // const user = useSelector(selectUserInfo);
-    // const nameValid = user.name !== '';
-    // const usernameValid = user.username !== '';
-    // const emailValid = user.email !== '';
-    // return { auth: nameValid && usernameValid && emailValid }
-*/;
-
-
-export default {
-    useQueryParams,
-    useDataReducer
+export const useRefreshToken = () => {
+    const requestOptions = {
+        method: 'GET',
+        withCredentials: true,
+    };
+    const refresh = async () => {
+        const response = await axios('/refresh', requestOptions);
+        const { token } = response.data;
+        refreshUser(response.data)
+        return token
+    }
+    return refresh
 };
+
+export const usePrivateAxios = () => {
+    const refresh = useRefreshToken();
+    const auth = useAuth();
+    useEffect(() => {
+        const requestIntercept = axiosPrivate.interceptors.request.use(
+            config => {
+                if (!config.headers.authorization) {
+                    config.headers.authorization = `Bearer ${auth?.token}`
+                }
+                return config;
+            },
+            async (error) => {
+                console.log('HOOKS', error, Object.keys(error))
+                return Promise.reject(error)
+            }
+        );
+
+        const responseIntercept = axiosPrivate.interceptors.response.use(
+            async (response) => { // error becomes response because of the intercept in axiosPrivate being applied first
+                const prevRequest = response?.config;
+                if (response?.status === 403 && !prevRequest?.sent) {
+                    prevRequest.sent = true;
+                    const newAccessToken = await refresh();
+                    prevRequest.headers.authorization = `Bearer ${newAccessToken}`;
+                    return axiosPrivate(prevRequest);
+                }
+                return response
+            },
+            async (error) => {
+                const prevRequest = error?.config;
+                if (error?.response?.status === 403 && !prevRequest?.sent) {
+                    prevRequest.sent = true;
+                    const newAccessToken = await refresh();
+                    prevRequest.headers.authorization = `Bearer ${newAccessToken}`;
+                    return axiosPrivate(prevRequest);
+                }
+                return Promise.reject(error)
+            }
+        )
+        return () => {
+            axiosPrivate.interceptors.request.eject(requestIntercept);
+            axiosPrivate.interceptors.response.eject(responseIntercept);
+        }
+    }, [auth, refresh])
+
+    return axiosPrivate
+}
+
+// export default {
+//     useQueryParams,
+//     useDataReducer
+// };

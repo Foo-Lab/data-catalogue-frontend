@@ -23,7 +23,7 @@ const Login = () => {
     });
 
     const location = useLocation();
-    const from = location.state?.from || '/'
+    const from = location.state?.from || '/samples'
     // console.log(location.state)
 
     const { isFetching, isSuccess, isError, errorMessage } = useSelector(

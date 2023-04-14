@@ -8,7 +8,7 @@ import PageHeader from '../PageHeader';
 import { checkIsDate, formatDate } from '../../utilities';
 
 import './EditPage.scss';
-import { useDataReducer } from '../../hooks';
+import { useDataReducer, usePrivateAxios } from '../../hooks';
 import ErrorAlert from '../ErrorAlert';
 
 const EditPage = ({
@@ -19,6 +19,7 @@ const EditPage = ({
     onEdit,
     showBackButton,
 }) => {
+    usePrivateAxios();
     const navigate = useNavigate();
     const { id } = useParams();
     const [submitError, setSubmitError] = useState(null);

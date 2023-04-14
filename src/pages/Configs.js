@@ -13,17 +13,15 @@ import EditPage from '../components/pages/EditPage';
 import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { splitCamelCase, compareStrings } from '../utilities';
+import { usePrivateAxios } from '../hooks';
 
 const Configs = ({ name }) => {
     const dispatch = useDispatch();
+    const axiosPrivate = usePrivateAxios();
     const pageProps = useRef({
         name: splitCamelCase(plural(name)),
         icon: <SettingOutlined />,
     });
-
-    useEffect(() => {
-        console.log(name)
-    }, [name])
 
     useEffect(() => () => {
         dispatch(clearPageState());
@@ -49,15 +47,15 @@ const Configs = ({ name }) => {
     ];
 
     // api calls
-    const getAllItems = (page, size, sort, dir) => apiService.getAll(name, page, size, sort, dir);
+    const getAllItems = (page, size, sort, dir) => apiService.getAll(axiosPrivate, name, page, size, sort, dir);
 
-    const getItem = (id) => apiService.getById(name, id);
+    const getItem = (id) => apiService.getById(axiosPrivate, name, id);
 
-    const addItem = (record) => apiService.create(name, record);
+    const addItem = (record) => apiService.create(axiosPrivate, name, record);
 
-    const updateItem = (id, record) => apiService.update(name, id, record);
+    const updateItem = (id, record) => apiService.update(axiosPrivate, name, id, record);
 
-    const deleteItem = (id) => apiService.remove(name, id)
+    const deleteItem = (id) => apiService.remove(axiosPrivate, name, id)
 
     return (
         <div className='configs-page'>

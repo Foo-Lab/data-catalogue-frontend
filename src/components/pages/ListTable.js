@@ -20,7 +20,7 @@ import {
     formatDateTime,
     getNestedObject,
 } from '../../utilities';
-import { useAuth, useDataReducer } from '../../hooks';
+import { useAuth, useDataReducer, usePrivateAxios } from '../../hooks';
 import { changePage, sortPage } from '../../store/listPageSlice';
 
 import './ListTable.scss';
@@ -53,6 +53,7 @@ const ListTable = ({
     showDeleteButton,
     allowClickRow,
 }) => {
+    usePrivateAxios();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();

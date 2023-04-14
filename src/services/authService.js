@@ -14,8 +14,6 @@ const handleResponse = (response) => {
     return { result: response.data };
 };
 
-console.log('hello')
-
 export const matchExistingUsername = (username) => {
     const requestOptions = {
         method: 'GET',

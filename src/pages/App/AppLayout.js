@@ -44,7 +44,7 @@ const AppLayout = () => {
             }
 
             <Layout className='app-body'>
-                <Header className='app-header'>
+                <Header className='app-header' style={{ backgroundColor: 'lightblue' }}>
                     {auth?.isLoggedIn &&
                         <Button
                             className='app-sider-trigger'

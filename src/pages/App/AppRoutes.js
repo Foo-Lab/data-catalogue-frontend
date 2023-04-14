@@ -31,7 +31,7 @@ const AppRoutes = () =>
             <Route path='/*' element={<h1>404 Page Invalid. </h1>} />
         </Route>
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Navigate to='/experiments' replace />} />
+        <Route path='/' element={<Navigate to='/samples' replace />} />
     </Routes>
 
 

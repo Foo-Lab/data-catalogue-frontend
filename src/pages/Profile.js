@@ -11,7 +11,7 @@ import AddPage from '../components/pages/AddPage';
 import apiService from '../services/apiService';
 import { matchExistingUsername, matchExistingEmail } from '../services/authService';
 import { compareStrings } from '../utilities';
-import { useAuth } from '../hooks';
+import { useAuth, usePrivateAxios } from '../hooks';
 import PrivateRoute from '../components/PrivateRoute';
 import { getColumnSearchProps } from '../components/pages/ListTable';
 
@@ -24,6 +24,7 @@ const Profile = () => {
     });
     const newPasswordRef = useRef();
     const auth = useAuth();
+    const axiosPrivate = usePrivateAxios();
 
     // list
     const tableColumns = [
@@ -195,16 +196,16 @@ const Profile = () => {
         },
     ];
 
-    const getAllItems = (page, size, sort, dir) => apiService.getAll(PAGE_NAME, page, size, sort, dir);
+    const getAllItems = (page, size, sort, dir) => apiService.getAll(axiosPrivate, PAGE_NAME, page, size, sort, dir);
 
-    const getItem = (id) => apiService.getById('user', id);
+    const getItem = (id) => apiService.getById(axiosPrivate, 'user', id);
 
     const addItem = async (record) => {
         const usernameFound = await matchExistingUsername(record.username).catch(() => { });
         const emailFound = await matchExistingEmail(record.email).catch(() => { });
         if (usernameFound) { throw new Error('Username already exists.') };
         if (emailFound) { throw new Error('Email already exists.') };
-        return apiService.create(PAGE_NAME, { ...record, password: 'password' });
+        return apiService.create(axiosPrivate, PAGE_NAME, { ...record, password: 'password' });
     }
 
     const updateItem = async (id, record) => {
@@ -212,9 +213,9 @@ const Profile = () => {
         const emailFound = await matchExistingEmail(record.email).catch(() => { });
         if (usernameFound && await id !== String(usernameFound?.result.id)) { throw new Error('Username already exists.') };
         if (emailFound && await id !== String(emailFound?.result.id)) { throw new Error('Email already exists.') };
-        return apiService.update('user', id, record);
+        return apiService.update(axiosPrivate, 'user', id, record);
     }
-    const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
+    const deleteItem = (id) => apiService.remove(axiosPrivate, PAGE_NAME, id)
 
     return (
         <div className='profile-page'>

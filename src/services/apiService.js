@@ -1,5 +1,3 @@
-import axios from '../modules/axios';
-
 /**
  * Handles the axios response. If response.status === 200, return response object as `{ result: data, ... }`. 
  * Otherwise returns a rejected Promise with the error message.
@@ -44,16 +42,14 @@ const handleResponse = (response) => {
  * @param {object} data The data to be inserted
  * @returns Will return the inserted row if successful, and Rejected Promise otherwise.
  */
-const create = async (route, data) => {
+const create = async (axios, route, data) => {
     const requestOptions = {
-        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': getToken(),
+            // 'Authorization': `Bearer ${token}`,
         },
-        data,
     };
-    const response = await axios(`/${route}`, requestOptions);
+    const response = await axios.post(`/${route}`, data, requestOptions);
     return handleResponse(response);
 };
 
@@ -68,7 +64,7 @@ const create = async (route, data) => {
  * @param {string} dir The direction of the sorting, either `asc` or `desc`
  * @returns Will return an array of rows if successful, and Rejected Promise otherwise.
  */
-const getAll = async (route, page, size, sort, dir) => {
+const getAll = async (axios, route, page, size, sort, dir) => {
     let params = {};
     if (page && size) {
         params = {
@@ -80,10 +76,12 @@ const getAll = async (route, page, size, sort, dir) => {
     }
 
     const requestOptions = {
-        method: 'GET',
+        headers: {
+            // 'Authorization': `Bearer ${token}`,
+        },
         params
     };
-    const response = await axios(`/${route}`, requestOptions);
+    const response = await axios.get(`/${route}`, requestOptions);
     return handleResponse(response);
 };
 
@@ -103,7 +101,7 @@ const getAll = async (route, page, size, sort, dir) => {
  * i.e. 'experiment'
  * @returns Will return an array of rows if successful, and Rejected Promise otherwise.
  */
-const getAllWhere = async (ref, page, size, sort, dir, { route, id }) => {
+const getAllWhere = async (axios, ref, page, size, sort, dir, { route, id }) => {
     let params = {};
     if (page && size) {
         params = {
@@ -115,10 +113,12 @@ const getAllWhere = async (ref, page, size, sort, dir, { route, id }) => {
     }
 
     const requestOptions = {
-        method: 'GET',
+        headers: {
+            // 'Authorization': `Bearer ${token}`,
+        },
         params
     };
-    const response = await axios(`/${route}/${ref}/${id}`, requestOptions);
+    const response = await axios.get(`/${route}/${ref}/${id}`, requestOptions);
     return handleResponse(response);
 };
 
@@ -128,11 +128,13 @@ const getAllWhere = async (ref, page, size, sort, dir, { route, id }) => {
  * @param {int} id pkey of the record
  * @returns Will return the matching row if successful, and Rejected Promise otherwise. 
  */
-const getById = async (route, id) => {
+const getById = async (axios, route, id) => {
     const requestOptions = {
-        method: 'GET',
+        headers: {
+            // 'Authorization': `Bearer ${token}`,
+        },
     };
-    const response = await axios(`/${route}/${id}`, requestOptions);
+    const response = await axios.get(`/${route}/${id}`, requestOptions);
     return handleResponse(response);
 };
 
@@ -143,13 +145,14 @@ const getById = async (route, id) => {
  * @param {object} data object containing updated columns of the record
  * @returns  Will return the updated row if successful, and Rejected Promise otherwise.
  */
-const update = async (route, id, data) => {
+const update = async (axios, route, id, data) => {
     const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        data,
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`,
+        },
     };
-    const response = await axios(`/${route}/${id}`, requestOptions);
+    const response = await axios.put(`/${route}/${id}`, data, requestOptions);
     return handleResponse(response);
 };
 
@@ -159,11 +162,13 @@ const update = async (route, id, data) => {
  * @param {int} id pkey of the record
  * @returns 
  */
-const remove = async (route, id) => {
+const remove = async (axios, route, id) => {
     const requestOptions = {
-        method: 'DELETE'
+        headers: {
+            // 'Authorization': `Bearer ${token}`,
+        },
     };
-    const response = await axios(`/${route}/${id}`, requestOptions);
+    const response = await axios.delete(`/${route}/${id}`, requestOptions);
     return handleResponse(response);
 };
 

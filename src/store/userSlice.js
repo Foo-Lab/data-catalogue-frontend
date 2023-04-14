@@ -4,8 +4,9 @@ import userService from '../services/userService';
 const initialState = {
     userId: '',
     name: '',
-    username: '',
-    email: '',
+    token: '',
+    // username: '',
+    // email: '',
     isLoggedIn: false,
     isAdmin: false,
     isFetching: false,
@@ -34,11 +35,21 @@ export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
+        refreshUser: (state, { payload }) => {
+            state.userId = payload.id;
+            state.name = payload.name;
+            state.token = payload.token;
+            state.isAdmin = payload.isAdmin;
+            state.isFetching = false;
+            state.isLoggedIn = true;
+            state.isSuccess = true;
+        },
         logout: (state) => {
             state.userId = '';
             state.name = '';
-            state.username = '';
-            state.email = '';
+            state.token = '';
+            // state.username = '';
+            // state.email = '';
             state.isLoggedIn = false;
             state.isAdmin = false;
             state.isFetching = false;
@@ -60,8 +71,9 @@ export const userSlice = createSlice({
             .addCase(login.fulfilled, (state, { payload }) => {
                 state.userId = payload.id;
                 state.name = payload.name;
-                state.username = payload.username;
-                state.email = payload.email;
+                state.token = payload.token;
+                // state.username = payload.username;
+                // state.email = payload.email;
                 state.isAdmin = payload.isAdmin;
                 state.isFetching = false;
                 state.isLoggedIn = true;
@@ -86,12 +98,13 @@ export const selectUserStatus = (state) => ({
 export const selectUserInfo = (state) => ({
     userId: state.user.userId,
     name: state.user.name,
-    username: state.user.username,
-    email: state.user.email,
+    token: state.user.token,
+    // username: state.user.username,
+    // email: state.user.email,
     isAdmin: state.user.isAdmin,
     isLoggedIn: state.user.isLoggedIn,
 })
 
 
-export const { clearState, logout } = userSlice.actions;
+export const { clearState, logout, refreshUser } = userSlice.actions;
 export default userSlice.reducer;

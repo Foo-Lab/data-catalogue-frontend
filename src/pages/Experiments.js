@@ -17,13 +17,15 @@ import { clearPageState } from '../store/listPageSlice';
 import apiService from '../services/apiService';
 import { compareStrings } from '../utilities';
 import PageHeader from '../components/PageHeader';
-import { useAuth } from '../hooks';
+import { useAuth, usePrivateAxios } from '../hooks';
 
 const PAGE_NAME = 'experiment';
 
 const Experiments = () => {
     const dispatch = useDispatch();
     const auth = useAuth();
+    const axiosPrivate = usePrivateAxios();
+
     const pageProps = useRef({
         name: plural(PAGE_NAME),
         referencedBy: { name: 'Sample', url: 'samples' },
@@ -34,7 +36,7 @@ const Experiments = () => {
 
     useEffect(() => {
         const getOptions = async () => {
-            const { result } = await apiService.getAll('user');
+            const { result } = await apiService.getAll(axiosPrivate, 'user');
             setUsers(result);
         };
         try {
@@ -177,21 +179,21 @@ const Experiments = () => {
     ];
 
     // api calls
-    const getAllItems = (page, size, sort, dir) => apiService.getAll(PAGE_NAME, page, size, sort, dir);
+    const getAllItems = (page, size, sort, dir) => apiService.getAll(axiosPrivate, PAGE_NAME, page, size, sort, dir);
 
-    const getItem = (id) => apiService.getById(PAGE_NAME, id);
+    const getItem = (id) => apiService.getById(axiosPrivate, PAGE_NAME, id);
 
-    const getByExpt = (page, size, sort, dir, id) => apiService.getAllWhere(PAGE_NAME, page, size, sort, dir, { route: 'sample', id });
+    const getByExpt = (page, size, sort, dir, id) => apiService.getAllWhere(axiosPrivate, PAGE_NAME, page, size, sort, dir, { route: 'sample', id });
 
-    const addItem = (record) => apiService.create(PAGE_NAME, record);
+    const addItem = (record) => apiService.create(axiosPrivate, PAGE_NAME, record);
 
-    const updateItem = (id, record) => apiService.update(PAGE_NAME, id, record);
+    const updateItem = (id, record) => apiService.update(axiosPrivate, PAGE_NAME, id, record);
 
-    const deleteItem = (id) => apiService.remove(PAGE_NAME, id)
+    const deleteItem = (id) => apiService.remove(axiosPrivate, PAGE_NAME, id)
 
     // const addSample = (record, exptId) => apiService.create('sampleFile', { sampleId, ...record });
 
-    const deleteSampleItem = (id) => apiService.remove('sample', id)
+    const deleteSampleItem = (id) => apiService.remove(axiosPrivate, 'sample', id)
 
     return (
         <div className='experiments-page'>
@@ -219,7 +221,7 @@ const Experiments = () => {
                         onDelete={deleteItem}
                         referenceListPage={<>
                             <PageHeader
-                                action={`Related ${plural(pageProps.current.referencedBy.name)}`}
+                                name={`Related ${plural(pageProps.current.referencedBy.name)}`}
                                 icon={<ExperimentOutlined />}
                                 showBackButton={false}
                                 showBreadCrumbs={false}

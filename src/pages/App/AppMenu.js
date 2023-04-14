@@ -9,8 +9,6 @@ import {
 
 import './AppMenu.scss';
 
-// const { SubMenu, Item } = Menu;
-
 const menuItems = [
     {
         key: 'data-submenu',
@@ -90,27 +88,6 @@ const AppMenu = () => {
         setOpenKeys(newOpenKeys)
     };
 
-    // const renderMenuItem = (item) => (
-    //     <Item
-    //         key={item.key}
-    //         icon={item?.icon}
-    //     >
-    //         <Link to={item.link}>{item.label}</Link>
-    //     </Item>
-    // );
-
-    // const renderSubMenu = (submenu) => (
-    //     <SubMenu
-    //         key={submenu.key}
-    //         icon={submenu.icon}
-    //         label={submenu.label}
-    //     >
-    //         {submenu.children.map(
-    //             child => renderMenuItem(child)
-    //         )}
-    //     </SubMenu>
-    // );
-
     return (
         <div className='app-menu'>
             <Menu
@@ -120,10 +97,7 @@ const AppMenu = () => {
                 onSelect={onSelect}
                 onOpenChange={onOpenChange}
                 items={menuItems}
-                onClick={item => {
-                    console.log(`nav to`, item)
-                    navigate(item.key, { state: location.pathname })
-                }}
+                onClick={item => navigate(item.key, { state: location.pathname })}
             />
         </div>
     );

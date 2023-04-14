@@ -7,6 +7,7 @@ import PageHeader from '../PageHeader';
 
 import './AddPage.scss';
 import ErrorAlert from '../ErrorAlert';
+import { useDefaultValue, usePrivateAxios } from '../../hooks';
 
 const AddPage = ({
     name,
@@ -15,13 +16,14 @@ const AddPage = ({
     onAdd,
     showBackButton,
 }) => {
+    usePrivateAxios();
     const { id } = useParams(); // only present for adding SampleFiles
     const navigate = useNavigate();
     const [submitError, setSubmitError] = useState(null);
     const onFinish = async (values) => {
         setSubmitError(null);
         try {
-            // console.log('values', values)
+            console.log('values', values)
             await onAdd(values, id);
             navigate(-1, { relative: 'route' });
         } catch (error) {
@@ -44,7 +46,7 @@ const AddPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
-                    initialValue={f.initialValue}
+                    initialValue={f.initialValue || useDefaultValue(f.name)}
                     rules={[
                         {
                             required: f.required,

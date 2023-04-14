@@ -1,6 +1,7 @@
 import axios from '../modules/axios';
 
 const handleResponse = (response) => {
+    console.log(response)
     if (response.status === 200) return response;
     if (response.status === 401) {
         // logout();
@@ -12,11 +13,15 @@ const handleResponse = (response) => {
 
 const login = (data) => {
     const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data,
+        // method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+        // data,
     };
-    return axios('/user/auth', requestOptions).then(handleResponse);
+    return axios.post('/auth/login', data, requestOptions).then(handleResponse);
 }
 
 const logout = () => {
