@@ -348,6 +348,30 @@ const Samples = () => {
 
     const deleteSampleFile = (id) => apiService.remove(axiosPrivate, 'sampleFile', id)
 
+    const refPage = () => (
+        <>
+            <PageHeader
+                name={`Related ${plural(pageProps.current.referencedBy.name)}`}
+                icon={<FileOutlined />}
+                showBackButton={false}
+                showBreadCrumbs={false}
+            >
+                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
+                    <Link to='new'>
+                        <Button type='primary' shape='circle' icon={<FileOutlined />} />
+                    </Link>
+                </Tooltip>
+            </PageHeader>
+            <ListTable
+                referenceUrl={pageProps.current.referencedBy.url}
+                columns={sampleFileCols}
+                getData={getBySample}
+                onDelete={deleteSampleFile}
+                allowClickRow={false}
+            />
+        </>
+    )
+
     return (
         <div className='samples-page'>
             <Routes>
@@ -380,27 +404,7 @@ const Samples = () => {
                         dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
-                        referenceListPage={<>
-                            <PageHeader
-                                name={`Related ${plural(pageProps.current.referencedBy.name)}`}
-                                icon={<FileOutlined />}
-                                showBackButton={false}
-                                showBreadCrumbs={false}
-                            >
-                                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
-                                    <Link to='new'>
-                                        <Button type='primary' shape='circle' icon={<FileOutlined />} />
-                                    </Link>
-                                </Tooltip>
-                            </PageHeader>
-                            <ListTable
-                                referenceUrl={pageProps.current.referencedBy.url}
-                                columns={sampleFileCols}
-                                getData={getBySample}
-                                onDelete={deleteSampleFile}
-                                allowClickRow={false}
-                            />
-                        </>}
+                        referenceListPage={refPage()}
                     />
                 }
                 />

@@ -5,10 +5,11 @@ import { refreshUser, selectUserInfo } from "./store/userSlice";
 import axios from "./modules/axios";
 import axiosPrivate from "./modules/axiosPrivate";
 
-// export const useQueryParams = () => new URLSearchParams(useLocation().search);
 export const useDefaultValue = (field) => {
     const searchParams = useSearchParams()[0];
-    return searchParams.get(field);
+    const val = searchParams.get(field);
+    if (val && Number.isNaN(val)) return val
+    return val ? Number(val) : null
 }
 
 const dataReducer = (state, action) => {

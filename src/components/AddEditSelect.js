@@ -7,13 +7,8 @@ const { Option } = Select;
 const AddEditSelect = ({ options, field }) => (
     <Select
         defaultActiveFirstOption
-        optionFilterProp='label'
-        filterOption={(input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input?.toLowerCase())
-        }
-        filterSort={(optionA, optionB) =>
-            (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-        }
+        optionFilterProp='title'
+        optionLabelProp='title'
         style={{ textAlign: 'left' }}
         placeholder={`Select ${field}`}
         showSearch
@@ -22,6 +17,7 @@ const AddEditSelect = ({ options, field }) => (
             <Option
                 key={d.id}
                 value={d.id}
+                title={d.name}
                 style={{ textAlign: 'left' }}
             >
                 {d.name}

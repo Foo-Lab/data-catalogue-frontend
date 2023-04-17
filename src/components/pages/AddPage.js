@@ -35,44 +35,9 @@ const AddPage = ({
 
     const onCancel = () => navigate(-1, { relative: 'route' });
 
-    const renderForm = () => (
-        <Form
-            name={name}
-            onFinish={onFinish}
-            scrollToFirstError
-        >
-            {fields.map(f =>
-                <Form.Item
-                    key={f.name}
-                    label={f.label}
-                    name={f.name}
-                    initialValue={f.initialValue || useDefaultValue(f.name)}
-                    rules={[
-                        {
-                            required: f.required,
-                            message: `Please input your ${f.label}!`
-                        },
-                        ...(f.rules ? f.rules : [])
-                    ]}
+    // const renderForm = () => (
 
-                >
-                    {f.input}
-                </Form.Item>
-            )}
-
-            <Form.Item
-                className='form-control-buttons'
-                wrapperCol={{ span: 4, offset: 10 }}
-            >
-                <Button type='primary' htmlType='submit'>
-                    Submit
-                </Button>
-                <Button type='default' onClick={onCancel}>
-                    Cancel
-                </Button>
-            </Form.Item>
-        </Form>
-    );
+    // );
 
     return (
         <div className='add-page'>
@@ -84,7 +49,41 @@ const AddPage = ({
                 showBackButton={showBackButton}
             />
             <div className='page-content'>
-                {renderForm()}
+                <Form
+                    name={name}
+                    onFinish={onFinish}
+                    scrollToFirstError
+                >
+                    {fields.map(f => <Form.Item
+                        key={f.name}
+                        label={f.label}
+                        name={f.name}
+                        initialValue={useDefaultValue(f.name) ?? f.initialValue}
+                        rules={[
+                            {
+                                required: f.required,
+                                message: `Please input your ${f.label}!`
+                            },
+                            ...(f.rules ? f.rules : [])
+                        ]}
+
+                    >
+                        {f.input}
+                    </Form.Item>
+                    )}
+
+                    <Form.Item
+                        className='form-control-buttons'
+                        wrapperCol={{ span: 4, offset: 10 }}
+                    >
+                        <Button type='primary' htmlType='submit'>
+                            Submit
+                        </Button>
+                        <Button type='default' onClick={onCancel}>
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
             </div>
         </div>
     );

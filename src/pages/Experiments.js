@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Input, DatePicker, Tooltip, Button } from 'antd';
 import { DotChartOutlined, ExperimentOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -191,9 +191,34 @@ const Experiments = () => {
 
     const deleteItem = (id) => apiService.remove(axiosPrivate, PAGE_NAME, id)
 
-    // const addSample = (record, exptId) => apiService.create('sampleFile', { sampleId, ...record });
-
     const deleteSampleItem = (id) => apiService.remove(axiosPrivate, 'sample', id)
+
+    const refPage = () => {
+        const { pathname } = useLocation();
+        const experimentId = pathname.split("/")[pathname.split("/").length - 1]
+        return (<>
+            <PageHeader
+                name={`Related ${plural(pageProps.current.referencedBy.name)}`}
+                icon={<ExperimentOutlined />}
+                showBackButton={false}
+                showBreadCrumbs={false}
+            >
+                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
+                    <Link to={`/samples/add?experimentId=${experimentId}`}>
+                        <Button type='primary' shape='circle' icon={<ExperimentOutlined />} />
+                    </Link>
+                </Tooltip>
+            </PageHeader>
+            <ListTable
+                referenceUrl={pageProps.current.referencedBy.url}
+                columns={sampleCols}
+                getData={getByExpt}
+                onDelete={deleteSampleItem}
+                allowClickRow
+                allowView
+            />
+        </>)
+    }
 
     return (
         <div className='experiments-page'>
@@ -219,28 +244,7 @@ const Experiments = () => {
                         dataDescriptors={listRows}
                         getData={getItem}
                         onDelete={deleteItem}
-                        referenceListPage={<>
-                            <PageHeader
-                                name={`Related ${plural(pageProps.current.referencedBy.name)}`}
-                                icon={<ExperimentOutlined />}
-                                showBackButton={false}
-                                showBreadCrumbs={false}
-                            >
-                                <Tooltip title={`Add new ${pageProps.current.referencedBy.name}`} >
-                                    <Link to='../../samples/add'>
-                                        <Button type='primary' shape='circle' icon={<ExperimentOutlined />} />
-                                    </Link>
-                                </Tooltip>
-                            </PageHeader>
-                            <ListTable
-                                referenceUrl={pageProps.current.referencedBy.url}
-                                columns={sampleCols}
-                                getData={getByExpt}
-                                onDelete={deleteSampleItem}
-                                allowClickRow
-                                allowView
-                            />
-                        </>}
+                        referenceListPage={refPage()}
                     />}
                 />
                 <Route path=":id/edit" element={
