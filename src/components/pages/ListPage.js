@@ -42,7 +42,7 @@ const ListPage = ({
             >
                 {showAddButton &&
                     <Link to='add'>
-                        <Tooltip title={`Add ${name}`}>
+                        <Tooltip placement='left' title={`Add ${name}`}>
                             <Button
                                 type='primary'
                                 shape='circle'

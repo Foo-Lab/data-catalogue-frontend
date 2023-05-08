@@ -22,7 +22,6 @@ const Profile = () => {
         name: 'profile',
         icon: <UserOutlined />,
     });
-    const newPasswordRef = useRef();
     const auth = useAuth();
     const axiosPrivate = usePrivateAxios();
 
@@ -145,6 +144,10 @@ const Profile = () => {
             name: 'email',
             required: true,
             input: <Input />,
+            rules: [{
+                type: 'email',
+                message: 'The input is not valid E-mail!',
+            }]
         },
         {
             label: 'Current Password',
@@ -160,7 +163,6 @@ const Profile = () => {
             required: true,
             input: <Input.Password
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                ref={newPasswordRef}
             />,
             rules: [{
                 min: 8,
@@ -173,19 +175,20 @@ const Profile = () => {
             required: true,
             input: <Input.Password
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                newpassref={newPasswordRef}
             />,
-            rules: [{
-                validator: async (rule, value) => {
-                    const newPassword = newPasswordRef.current.props.value;
-                    if (value !== newPassword) {
+            dependencies: ['newPassword'],
+            rules: [
+                ({ getFieldValue }) => ({
+                    validator: async (_, value) => {
+                        const newPassword = getFieldValue('newPassword');
                         console.log('value: ', value, 'newPassword: ', newPassword);
+                        if (value === newPassword) {
+                            return Promise.resolve();
+                        }
                         return Promise.reject(new Error('Passwords do not match.'));
-                    }
-                    return Promise.resolve();
-                },
-                message: 'Passwords do not match.'
-            }]
+                    },
+                })
+            ]
         },
         {
             label: 'Admin',

@@ -38,6 +38,8 @@ export const getColumnSearchProps = (dataIndex) => ({
         const instance = Array.isArray(dataIndex) // check if 'key' of a data descriptor is an array. e.g. key: ['User', 'name']
             ? getNestedObject(record, dataIndex) // descriptor info is in a nested object
             : record[dataIndex] // descriptor can be easily accessed
+        // console.log('instance', instance.toString())
+        // console.log('value', value)
         return instance.toString().toLowerCase().includes(value.toLowerCase())
     },
 });
@@ -75,6 +77,7 @@ const ListTable = ({
     useEffect(() => {
         setLoading(true);
         const fetchData = async () => {
+            console.log('fetching', ` pageNum: ${pageNum}, pageSize: ${pageSize}, sortBy: ${sortBy}, sortDir: ${sortDir},`)
             const { count, result } = await getData(
                 pageNum,
                 pageSize,
@@ -116,6 +119,7 @@ const ListTable = ({
                 break;
             }
             case 'sort': {
+                console.log(sorter)
                 const { field, order } = sorter;
                 dispatch(sortPage({
                     sortBy: Array.isArray(field)
@@ -126,6 +130,7 @@ const ListTable = ({
                 break;
             }
             case 'filter': {
+                console.log(filters)
                 break;
             }
             default:

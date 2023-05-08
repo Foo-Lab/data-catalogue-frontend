@@ -37,7 +37,7 @@ const FilterDropdown = ({ setSelectedKeys, selectedKeys, clearFilters, confirm, 
                     type="link"
                     onClick={() => close()}
                 >
-                    Close
+                    Cancel
                 </Button>
             </Space>
         </Row>

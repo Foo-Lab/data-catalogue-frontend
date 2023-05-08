@@ -70,10 +70,11 @@ const EditPage = ({
                     key={f.name}
                     label={f.label}
                     name={f.name}
+                    dependencies={f.dependencies}
                     rules={[
                         {
                             required: f.required,
-                            message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'New Password'}!`
+                            message: `Please input your ${f.name !== 'confirmPassword' ? f.label : 'new password'}!`
                         },
                         ...(f.rules ? f.rules : [])
                     ]}

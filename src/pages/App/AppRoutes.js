@@ -9,6 +9,7 @@ import Login from '../Login';
 
 import constants from '../../constants';
 import PrivateRoute from '../../components/PrivateRoute';
+import InvalidPage from './InvalidPage';
 
 // TODO check if AccessToken exists and is valid
 // TODO wrap all routes except login with PrivateRoute
@@ -28,10 +29,10 @@ const AppRoutes = () =>
 
             <Route path='/profile/*' element={<Profile />} />
             <Route path='/unauthorized' element={<h1>422 You do not have permission to view this page. Contact a system administrator. </h1>} />
-            <Route path='/*' element={<h1>404 Page Invalid. </h1>} />
+            <Route path='/*' element={<InvalidPage />} />
         </Route>
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Navigate to='/samples' replace />} />
+        <Route path='/' element={<Navigate to='/experiments' replace />} />
     </Routes>
 
 
