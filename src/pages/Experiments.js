@@ -73,7 +73,7 @@ const Experiments = () => {
             title: 'Date',
             dataIndex: 'date',
             render: (date) => moment(date).format('DD/MM/YYYY'),
-            sorter: (a, b) => new Date(b.date) - new Date(a.date),
+            sorter: (a, b) => new Date(a.date) - new Date(b.date),
             ...getColumnSearchProps('date'),
         },
         {
@@ -114,7 +114,7 @@ const Experiments = () => {
             title: 'Date',
             dataIndex: 'date',
             render: (date) => moment(date).format('DD/MM/YYYY'),
-            sorter: (a, b) => new Date(b.date) - new Date(a.date),
+            sorter: (a, b) => new Date(a.date) - new Date(b.date),
         },
         {
             title: 'Seq Type',
